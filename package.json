@@ -2,6 +2,7 @@
   "name": "chrome-extension-gmail-enhancements",
   "version": "1.0.0",
   "private": true,
+  "license": "MIT",
   "description": "Chrome extension: small fixes for Gmail, starting with links that go straight where they point.",
   "type": "module",
   "scripts": {
