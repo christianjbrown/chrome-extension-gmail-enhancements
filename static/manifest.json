@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Christian's Gmail Enhancements",
   "version": "1.0.0",
-  "description": "Small fixes for Gmail. Links in emails go straight where they point, and accepted invites tidy themselves into Bin.",
+  "description": "Small fixes for Gmail. Links in emails go straight where they point, and invites you've answered tidy themselves into Bin.",
   "minimum_chrome_version": "126",
   "icons": {
     "16": "icons/icon-16.png",

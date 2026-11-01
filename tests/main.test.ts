@@ -47,7 +47,7 @@ describe("content script", () => {
     expect(early.getAttribute("href")).toBe(target);
   });
 
-  it("bins an invitation once Gmail shows it accepted", async () => {
+  it("bins an invitation once Gmail shows it answered", async () => {
     vi.useFakeTimers();
     // jsdom lays nothing out, so everything counts as on screen.
     Element.prototype.checkVisibility = () => true;
@@ -56,19 +56,19 @@ describe("content script", () => {
       "beforeend",
       `<div role="button" aria-label="Delete" id="delete"></div>
        <div data-message-id="1">
-         <a href="https://calendar.google.com/calendar/event?action=RESPOND&amp;rst=1">Yes</a>
-         <div role="button" id="yes">Yes</div>
+         <a href="https://calendar.google.com/calendar/event?action=RESPOND&amp;rst=3">Maybe</a>
+         <div role="button" id="maybe">Maybe</div>
        </div>`,
     );
-    const yes = document.getElementById("yes")!;
+    const maybe = document.getElementById("maybe")!;
     // Gmail marks the answer it has recorded.
-    yes.addEventListener("click", () => {
-      yes.setAttribute("aria-pressed", "true");
+    maybe.addEventListener("click", () => {
+      maybe.setAttribute("aria-pressed", "true");
     });
     const deleted = vi.fn();
     document.getElementById("delete")!.addEventListener("mouseup", deleted);
 
-    yes.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    maybe.dispatchEvent(new MouseEvent("click", { bubbles: true }));
     await vi.advanceTimersByTimeAsync(1000);
 
     // Every earlier test loaded the script too, so each copy presses it.

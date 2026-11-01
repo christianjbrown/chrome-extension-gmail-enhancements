@@ -1,4 +1,4 @@
-import { RsvpLabels } from "../../src/accepted-invites/rsvp-labels";
+import { RsvpLabels } from "../../src/answered-invites/rsvp-labels";
 
 function control(markup: string): Element {
   const root = document.createElement("div");

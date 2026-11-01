@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "license": "MIT",
-  "description": "Chrome extension: small fixes for Gmail, like links that go straight where they point and accepted invites that tidy themselves into Bin.",
+  "description": "Chrome extension: small fixes for Gmail, like links that go straight where they point and answered invites that tidy themselves into Bin.",
   "type": "module",
   "scripts": {
     "build": "node scripts/build.mjs",

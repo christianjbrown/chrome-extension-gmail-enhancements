@@ -1,4 +1,4 @@
-// Moves an accepted invitation's conversation to Bin with Gmail's own Delete,
+// Moves an answered invitation's conversation to Bin with Gmail's own Delete,
 // so nothing is ever deleted for good and Undo works as usual.
 import type { DeleteFinder } from "./delete-finder";
 import type { SafetyCheck } from "./lone-invite";

@@ -1,4 +1,4 @@
-import { NearestDelete } from "../../src/accepted-invites/delete-finder";
+import { NearestDelete } from "../../src/answered-invites/delete-finder";
 
 const visibility = {
   visible: (element: Element) => element.closest("[hidden]") === null,
