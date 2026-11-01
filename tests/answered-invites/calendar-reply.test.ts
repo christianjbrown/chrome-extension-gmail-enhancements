@@ -1,4 +1,4 @@
-import { CalendarReplyLink } from "../../src/accepted-invites/calendar-reply";
+import { CalendarReplyLink } from "../../src/answered-invites/calendar-reply";
 import { GoogleRedirect } from "../../src/direct-links/google-redirect";
 import { WebOnly } from "../../src/direct-links/url-policy";
 

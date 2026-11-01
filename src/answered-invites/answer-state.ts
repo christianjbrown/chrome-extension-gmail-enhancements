@@ -1,8 +1,9 @@
-// Whether Gmail shows a message's invitation as accepted.
+// Whether Gmail shows a message's invitation as answered a given way.
+import type { Answer } from "./answer";
 import type { Labels } from "./rsvp-labels";
 
-export interface AcceptState {
-  accepted(message: Element): boolean;
+export interface AnswerState {
+  answered(message: Element, answer: Answer): boolean;
 }
 
 // The ARIA states a toggle uses to tell a screen reader which answer is the
@@ -11,12 +12,12 @@ export interface AcceptState {
 const CHOSEN =
   "[aria-pressed='true'], [aria-checked='true'], [aria-selected='true']";
 
-export class ChosenYes implements AcceptState {
+export class ChosenAnswer implements AnswerState {
   constructor(private readonly labels: Labels) {}
 
-  accepted(message: Element): boolean {
+  answered(message: Element, answer: Answer): boolean {
     return [...message.querySelectorAll(CHOSEN)].some(
-      (control) => this.labels.answer(control) === "yes",
+      (control) => this.labels.answer(control) === answer,
     );
   }
 }

@@ -1,6 +1,6 @@
-import { CalendarReplyLink } from "../../src/accepted-invites/calendar-reply";
-import { RsvpLabels } from "../../src/accepted-invites/rsvp-labels";
-import { InviteRsvps } from "../../src/accepted-invites/rsvp-reader";
+import { CalendarReplyLink } from "../../src/answered-invites/calendar-reply";
+import { RsvpLabels } from "../../src/answered-invites/rsvp-labels";
+import { InviteRsvps } from "../../src/answered-invites/rsvp-reader";
 import { GoogleRedirect } from "../../src/direct-links/google-redirect";
 import { WebOnly } from "../../src/direct-links/url-policy";
 

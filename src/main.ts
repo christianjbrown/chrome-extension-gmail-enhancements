@@ -1,15 +1,15 @@
 // The content script: builds every enhancement and starts it. Nothing else
 // touches the page's globals.
-import { ChosenYes } from "./accepted-invites/accept-state";
-import { AcceptedInvites } from "./accepted-invites/accepted-invites";
-import { CalendarReplyLink } from "./accepted-invites/calendar-reply";
-import { GmailConfirmation } from "./accepted-invites/confirmation";
-import { NearestDelete } from "./accepted-invites/delete-finder";
-import { ConversationBinner } from "./accepted-invites/invite-binner";
-import { LoneInvite } from "./accepted-invites/lone-invite";
-import { MousePresser } from "./accepted-invites/presser";
-import { RsvpLabels } from "./accepted-invites/rsvp-labels";
-import { InviteRsvps } from "./accepted-invites/rsvp-reader";
+import { ChosenAnswer } from "./answered-invites/answer-state";
+import { AnsweredInvites } from "./answered-invites/answered-invites";
+import { CalendarReplyLink } from "./answered-invites/calendar-reply";
+import { GmailConfirmation } from "./answered-invites/confirmation";
+import { NearestDelete } from "./answered-invites/delete-finder";
+import { ConversationBinner } from "./answered-invites/invite-binner";
+import { LoneInvite } from "./answered-invites/lone-invite";
+import { MousePresser } from "./answered-invites/presser";
+import { RsvpLabels } from "./answered-invites/rsvp-labels";
+import { InviteRsvps } from "./answered-invites/rsvp-reader";
 import { ClickGuard } from "./direct-links/click-guard";
 import { DirectLinks } from "./direct-links/direct-links";
 import { GoogleRedirect } from "./direct-links/google-redirect";
@@ -33,13 +33,13 @@ function directLinks(): Enhancement {
   );
 }
 
-function acceptedInvites(): Enhancement {
+function answeredInvites(): Enhancement {
   const webOnly = new WebOnly();
   const labels = new RsvpLabels();
   const visibility = {
     visible: (element: Element) => element.checkVisibility(),
   };
-  return new AcceptedInvites(
+  return new AnsweredInvites(
     window,
     new InviteRsvps(
       new CalendarReplyLink(new GoogleRedirect(webOnly), webOnly),
@@ -50,7 +50,7 @@ function acceptedInvites(): Enhancement {
         delay: (milliseconds) =>
           new Promise((resolve) => window.setTimeout(resolve, milliseconds)),
       },
-      new ChosenYes(labels),
+      new ChosenAnswer(labels),
     ),
     new ConversationBinner(
       new NearestDelete(visibility),
@@ -63,6 +63,6 @@ function acceptedInvites(): Enhancement {
 }
 
 // A new enhancement is a new class and a new line here.
-const enhancements: Enhancement[] = [directLinks(), acceptedInvites()];
+const enhancements: Enhancement[] = [directLinks(), answeredInvites()];
 
 for (const enhancement of enhancements) enhancement.start();

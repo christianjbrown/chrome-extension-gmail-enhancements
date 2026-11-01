@@ -1,8 +1,8 @@
-import { AcceptedInvites } from "../../src/accepted-invites/accepted-invites";
-import type { Answer } from "../../src/accepted-invites/answer";
-import type { Rsvp } from "../../src/accepted-invites/rsvp-reader";
+import { AnsweredInvites } from "../../src/answered-invites/answered-invites";
+import type { Answer } from "../../src/answered-invites/answer";
+import type { Rsvp } from "../../src/answered-invites/rsvp-reader";
 
-describe("AcceptedInvites", () => {
+describe("AnsweredInvites", () => {
   const message = document.createElement("div");
 
   function setup(...answers: (Answer | undefined)[]) {
@@ -17,65 +17,75 @@ describe("AcceptedInvites", () => {
       const answer = answers.shift();
       return answer && { answer, message, via: "button" as const };
     });
-    new AcceptedInvites(source, { read }, { confirmed }, { bin }).start();
+    new AnsweredInvites(source, { read }, { confirmed }, { bin }).start();
     const click = () => {
       source.dispatchEvent(new MouseEvent("click"));
     };
     return { bin, confirmed, pending, read, click, source };
   }
 
-  it("bins the invitation once an accept is confirmed", async () => {
-    const { bin, confirmed, pending, read, click, source } = setup("yes");
+  function settle() {
+    return new Promise((resolve) => setTimeout(resolve, 0));
+  }
 
-    click();
-    pending[0]!(true);
+  it.each<Answer>(["yes", "maybe", "no"])(
+    "bins the invitation once a %s is confirmed",
+    async (answer) => {
+      const { bin, confirmed, pending, read, click, source } = setup(answer);
 
-    expect(read).toHaveBeenCalledWith(source);
-    expect(confirmed.mock.calls[0]![0]).toEqual({
-      answer: "yes",
-      message,
-      via: "button",
-    });
-    await vi.waitFor(() => {
-      expect(bin).toHaveBeenCalledExactlyOnceWith(message);
-    });
-  });
+      click();
+      pending[0]!(true);
 
-  it("keeps the invitation when the accept is not confirmed", async () => {
+      expect(read).toHaveBeenCalledWith(source);
+      expect(confirmed.mock.calls[0]![0]).toEqual({
+        answer,
+        message,
+        via: "button",
+      });
+      await vi.waitFor(() => {
+        expect(bin).toHaveBeenCalledExactlyOnceWith(message);
+      });
+    },
+  );
+
+  it("keeps the invitation when the reply is not confirmed", async () => {
     const { bin, pending, click } = setup("yes");
 
     click();
     pending[0]!(false);
 
-    await new Promise((resolve) => setTimeout(resolve, 0));
+    await settle();
     expect(bin).not.toHaveBeenCalled();
   });
 
-  it("never touches Maybe, No or other clicks", () => {
-    const { confirmed, click } = setup("maybe", "no", undefined);
+  it("ignores clicks that are not replies", () => {
+    const { confirmed, click } = setup(undefined);
 
-    click();
-    click();
     click();
 
     expect(confirmed).not.toHaveBeenCalled();
   });
 
-  it("calls a Yes off when the answer changes before it is confirmed", async () => {
+  it("goes by the latest answer when it changes before the first is confirmed", async () => {
     const { bin, pending, click } = setup("yes", "no");
 
     click();
     click();
     pending[0]!(true);
+    await settle();
 
-    await new Promise((resolve) => setTimeout(resolve, 0));
     expect(bin).not.toHaveBeenCalled();
+
+    pending[1]!(true);
+    await vi.waitFor(() => {
+      expect(bin).toHaveBeenCalledExactlyOnceWith(message);
+    });
   });
 
   it("listens before Gmail's own handlers", () => {
     const addEventListener = vi.fn();
 
-    new AcceptedInvites(
+    new AnsweredInvites(
       { addEventListener },
       { read: vi.fn() },
       { confirmed: vi.fn() },

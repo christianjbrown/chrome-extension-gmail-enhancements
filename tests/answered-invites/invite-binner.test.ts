@@ -1,4 +1,4 @@
-import { ConversationBinner } from "../../src/accepted-invites/invite-binner";
+import { ConversationBinner } from "../../src/answered-invites/invite-binner";
 
 describe("ConversationBinner", () => {
   const control = document.createElement("div");

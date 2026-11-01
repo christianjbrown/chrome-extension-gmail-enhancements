@@ -1,6 +1,6 @@
-// Waits until an accept has really gone through, so a reply that fails never
-// costs the email.
-import type { AcceptState } from "./accept-state";
+// Waits until a reply to an invitation has really gone through, so a reply
+// that fails never costs the email.
+import type { AnswerState } from "./answer-state";
 import type { Rsvp } from "./rsvp-reader";
 
 export interface Timer {
@@ -14,14 +14,14 @@ export interface Confirmation {
 const INTERVAL = 500;
 // Fifteen seconds, then it gives up and the email stays where it is.
 const POLLS = 30;
-// Two looks in a row, so a Yes Gmail shows and then takes back on a failed
-// reply does not count.
+// Two looks in a row, so an answer Gmail shows and then takes back on a
+// failed reply does not count.
 const SETTLED = 2;
 
 export class GmailConfirmation implements Confirmation {
   constructor(
     private readonly timer: Timer,
-    private readonly state: AcceptState,
+    private readonly state: AnswerState,
   ) {}
 
   confirmed(rsvp: Rsvp, click: Event): Promise<boolean> {
@@ -41,7 +41,9 @@ export class GmailConfirmation implements Confirmation {
     // A reply link Gmail let through opened Calendar, which records the
     // reply as it loads.
     if (rsvp.via === "link" && !click.defaultPrevented) return true;
-    const next = this.state.accepted(rsvp.message) ? streak + 1 : 0;
+    const next = this.state.answered(rsvp.message, rsvp.answer)
+      ? streak + 1
+      : 0;
     return next === SETTLED || this.poll(rsvp, click, polls + 1, next);
   }
 }

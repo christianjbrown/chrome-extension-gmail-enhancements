@@ -1,4 +1,4 @@
-import { LoneInvite } from "../../src/accepted-invites/lone-invite";
+import { LoneInvite } from "../../src/answered-invites/lone-invite";
 
 const check = new LoneInvite({
   visible: (element) => element.closest("[hidden]") === null,
