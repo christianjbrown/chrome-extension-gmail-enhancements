@@ -1,4 +1,4 @@
-# Gmail Enhancements 📬
+# Gmail Enhancements Chrome Extension 📬
 
 A little Chrome extension that smooths out the bits of Gmail that bug me. Right now that's one thing, but it's built to collect more. No options page, no button, no settings. It just quietly makes Gmail nicer.
 
