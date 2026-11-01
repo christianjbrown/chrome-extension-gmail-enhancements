@@ -60,7 +60,7 @@ Then hit the reload arrow on the Christian's Gmail Enhancements card in `chrome:
 
 No analytics, no tracking, no ads, no accounts, and nothing phoning home. It never talks to the internet at all, so nothing about your email leaves your machine. It reads link addresses on the page and rewrites them in place, and that's it.
 
-## Hacking on it 🛠️
+## Development 🛠️
 
 It's TypeScript, bundled with esbuild, tested with Vitest.
 
