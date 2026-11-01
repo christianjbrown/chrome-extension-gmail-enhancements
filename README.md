@@ -53,6 +53,7 @@ Then hit the reload arrow on the Christian's Gmail Enhancements card in `chrome:
 ## Good to know 🤓
 
 - **It asks for no permissions.** It only runs on `mail.google.com`, so Chrome will say it can read and change your data there, and that's the whole list.
+- **You lose Google's warning page too.** The redirect is also where Gmail shows its "this link may be unsafe" page for links it doesn't trust. Once the links point straight at their targets, that page never gets a chance to appear, so a dodgy link in a dodgy email goes straight where it says. The same care you'd take anywhere else applies. ⚠️
 - **Why not block the redirect page itself?** Chrome could redirect `www.google.com/url` requests, but that needs access to google.com as well, and it can't decode the target properly anyway. Fixing the links before you click covers it without asking for more.
 
 ## No tracking 🔒
