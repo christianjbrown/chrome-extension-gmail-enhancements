@@ -46,4 +46,33 @@ describe("content script", () => {
 
     expect(early.getAttribute("href")).toBe(target);
   });
+
+  it("bins an invitation once Gmail shows it accepted", async () => {
+    vi.useFakeTimers();
+    // jsdom lays nothing out, so everything counts as on screen.
+    Element.prototype.checkVisibility = () => true;
+    await load();
+    document.body.insertAdjacentHTML(
+      "beforeend",
+      `<div role="button" aria-label="Delete" id="delete"></div>
+       <div data-message-id="1">
+         <a href="https://calendar.google.com/calendar/event?action=RESPOND&amp;rst=1">Yes</a>
+         <div role="button" id="yes">Yes</div>
+       </div>`,
+    );
+    const yes = document.getElementById("yes")!;
+    // Gmail marks the answer it has recorded.
+    yes.addEventListener("click", () => {
+      yes.setAttribute("aria-pressed", "true");
+    });
+    const deleted = vi.fn();
+    document.getElementById("delete")!.addEventListener("mouseup", deleted);
+
+    yes.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    await vi.advanceTimersByTimeAsync(1000);
+
+    // Every earlier test loaded the script too, so each copy presses it.
+    expect(deleted).toHaveBeenCalled();
+    vi.useRealTimers();
+  });
 });

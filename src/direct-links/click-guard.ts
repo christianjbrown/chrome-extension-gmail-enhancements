@@ -1,15 +1,8 @@
 // Cleans a link again in the instant it is pressed, before any of Gmail's own
 // handlers run, in case Gmail rewrote it after the watcher last saw it.
 import type { Enhancement } from "../enhancement";
+import type { EventSource } from "../event-source";
 import type { Cleaner } from "./link-cleaner";
-
-export interface EventSource {
-  addEventListener(
-    type: string,
-    listener: (event: Event) => void,
-    options: AddEventListenerOptions,
-  ): void;
-}
 
 // A middle click and a right click (for "Copy link address") count too.
 const EVENTS = ["mousedown", "click", "auxclick", "contextmenu"];
