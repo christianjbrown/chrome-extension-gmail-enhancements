@@ -4,6 +4,7 @@ import { ChosenAnswer } from "./answered-invites/answer-state";
 import { AnsweredInvites } from "./answered-invites/answered-invites";
 import { CalendarReplyLink } from "./answered-invites/calendar-reply";
 import { GmailConfirmation } from "./answered-invites/confirmation";
+import { SmartEventCards } from "./answered-invites/event-card";
 import { NearestDelete } from "./answered-invites/delete-finder";
 import { ConversationBinner } from "./answered-invites/invite-binner";
 import { LoneInvite } from "./answered-invites/lone-invite";
@@ -36,6 +37,7 @@ function directLinks(): Enhancement {
 function answeredInvites(): Enhancement {
   const webOnly = new WebOnly();
   const labels = new RsvpLabels();
+  const cards = new SmartEventCards();
   const visibility = {
     visible: (element: Element) => element.checkVisibility(),
   };
@@ -44,13 +46,14 @@ function answeredInvites(): Enhancement {
     new InviteRsvps(
       new CalendarReplyLink(new GoogleRedirect(webOnly), webOnly),
       labels,
+      cards,
     ),
     new GmailConfirmation(
       {
         delay: (milliseconds) =>
           new Promise((resolve) => window.setTimeout(resolve, milliseconds)),
       },
-      new ChosenAnswer(labels),
+      new ChosenAnswer(labels, cards),
     ),
     new ConversationBinner(
       new NearestDelete(visibility),

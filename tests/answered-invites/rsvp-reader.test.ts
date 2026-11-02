@@ -1,4 +1,5 @@
 import { CalendarReplyLink } from "../../src/answered-invites/calendar-reply";
+import { SmartEventCards } from "../../src/answered-invites/event-card";
 import { RsvpLabels } from "../../src/answered-invites/rsvp-labels";
 import { InviteRsvps } from "../../src/answered-invites/rsvp-reader";
 import { GoogleRedirect } from "../../src/direct-links/google-redirect";
@@ -33,6 +34,7 @@ describe("InviteRsvps", () => {
   const reader = new InviteRsvps(
     new CalendarReplyLink(new GoogleRedirect(webOnly), webOnly),
     new RsvpLabels(),
+    new SmartEventCards(),
   );
   const message = at(invite, "message");
 
@@ -78,6 +80,41 @@ describe("InviteRsvps", () => {
     );
 
     expect(reader.read(root.querySelector("button"))?.via).toBe("button");
+  });
+
+  describe("Gmail's event card above the message", () => {
+    const conversation = page(`
+      <div data-container-id="0:msg-f:7:extractedsmartmailevent">
+        <div><button id="yes"><span id="yes-text">Yes</span></button><button id="no">No</button></div>
+        <div><button id="helpful" aria-label="Yes" aria-pressed="false"></button></div>
+      </div>
+      <div role="list">
+        <div id="message" data-message-id="#msg-f:7">
+          <a href="${respond}&rst=1">Yes</a>
+        </div>
+      </div>
+    `);
+
+    it("reads its answers as answers to the message", () => {
+      expect(reader.read(at(conversation, "yes-text"))).toEqual({
+        answer: "yes",
+        message: at(conversation, "message"),
+        via: "button",
+      });
+      expect(reader.read(at(conversation, "no"))?.answer).toBe("no");
+    });
+
+    it("ignores the Correct? thumbs, though they say Yes and No", () => {
+      expect(reader.read(at(conversation, "helpful"))).toBeUndefined();
+    });
+
+    it("ignores a card about an email that is not an invitation", () => {
+      const root = page(`
+        <div data-container-id="0:msg-f:8:extractedsmartmailevent"><button>Yes</button></div>
+        <div data-message-id="#msg-f:8"></div>`);
+
+      expect(reader.read(root.querySelector("button"))).toBeUndefined();
+    });
   });
 
   it("ignores a reply link outside any message", () => {

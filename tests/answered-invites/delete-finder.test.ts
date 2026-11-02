@@ -32,6 +32,16 @@ describe("NearestDelete", () => {
     });
   });
 
+  it("finds a Delete whose only label is its title", () => {
+    const root = page(`
+      <div role="button" title="Delete" id="delete"></div>
+      <div data-message-id="1"></div>`);
+
+    expect(finder.find(message(root))?.control).toBe(
+      root.querySelector("#delete"),
+    );
+  });
+
   it("prefers the reading pane's Delete to the list's", () => {
     const root = page(`
       <div role="button" aria-label="Delete"></div>
