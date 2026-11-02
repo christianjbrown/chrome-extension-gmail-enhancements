@@ -75,4 +75,37 @@ describe("content script", () => {
     expect(deleted).toHaveBeenCalled();
     vi.useRealTimers();
   });
+
+  it("bins an invitation answered on Gmail's event card", async () => {
+    vi.useFakeTimers();
+    Element.prototype.checkVisibility = () => true;
+    await load();
+    document.body.insertAdjacentHTML(
+      "beforeend",
+      `<div role="button" aria-label="Delete" id="delete-card"></div>
+       <div id="card" data-container-id="0:msg-f:9:extractedsmartmailevent">
+         <button id="card-yes">Yes</button>
+       </div>
+       <div data-message-id="#msg-f:9">
+         <a href="https://calendar.google.com/calendar/event?action=RESPOND&amp;rst=1">Yes</a>
+       </div>`,
+    );
+    // Gmail draws a new card naming the answer it has recorded.
+    document.getElementById("card-yes")!.addEventListener("click", () => {
+      document.getElementById("card")!.innerHTML =
+        `<button aria-haspopup="menu">Yes</button>`;
+    });
+    const deleted = vi.fn();
+    document
+      .getElementById("delete-card")!
+      .addEventListener("mouseup", deleted);
+
+    document
+      .getElementById("card-yes")!
+      .dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    await vi.advanceTimersByTimeAsync(1000);
+
+    expect(deleted).toHaveBeenCalled();
+    vi.useRealTimers();
+  });
 });
