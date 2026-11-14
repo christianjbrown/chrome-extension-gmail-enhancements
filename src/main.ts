@@ -19,6 +19,13 @@ import { LinkScanner } from "./direct-links/link-scanner";
 import { NodeWatcher } from "./direct-links/node-watcher";
 import { WebOnly } from "./direct-links/url-policy";
 import type { Enhancement } from "./enhancement";
+import { GmailMessageMenu } from "./reported-phishing/message-menu";
+import { VisibleMessages } from "./reported-phishing/messages";
+import { Poller } from "./reported-phishing/poller";
+import { ReportedBinner } from "./reported-phishing/reported-binner";
+import { ReportedPhishing } from "./reported-phishing/reported-phishing";
+import type { Router } from "./reported-phishing/router";
+import { SpamRoutes } from "./reported-phishing/spam-routes";
 
 function directLinks(): Enhancement {
   const webOnly = new WebOnly();
@@ -34,13 +41,23 @@ function directLinks(): Enhancement {
   );
 }
 
+const visibility = {
+  visible: (element: Element) => element.checkVisibility(),
+};
+
+const timer = {
+  delay: (milliseconds: number) =>
+    new Promise<void>((resolve) => window.setTimeout(resolve, milliseconds)),
+};
+
+const presser = new MousePresser(
+  (type) => new MouseEvent(type, { bubbles: true, cancelable: true }),
+);
+
 function answeredInvites(): Enhancement {
   const webOnly = new WebOnly();
   const labels = new RsvpLabels();
   const cards = new SmartEventCards();
-  const visibility = {
-    visible: (element: Element) => element.checkVisibility(),
-  };
   return new AnsweredInvites(
     window,
     new InviteRsvps(
@@ -48,24 +65,42 @@ function answeredInvites(): Enhancement {
       labels,
       cards,
     ),
-    new GmailConfirmation(
-      {
-        delay: (milliseconds) =>
-          new Promise((resolve) => window.setTimeout(resolve, milliseconds)),
-      },
-      new ChosenAnswer(labels, cards),
-    ),
+    new GmailConfirmation(timer, new ChosenAnswer(labels, cards)),
     new ConversationBinner(
       new NearestDelete(visibility),
       new LoneInvite(visibility),
-      new MousePresser(
-        (type) => new MouseEvent(type, { bubbles: true, cancelable: true }),
-      ),
+      presser,
+    ),
+  );
+}
+
+function reportedPhishing(): Enhancement {
+  const router: Router = {
+    current: () => window.location.hash,
+    go: (route) => {
+      window.location.hash = route;
+    },
+  };
+  const menu = new GmailMessageMenu(document, visibility);
+  const navigation = { router, routes: new SpamRoutes() };
+  return new ReportedPhishing(
+    window,
+    navigation,
+    menu,
+    new ReportedBinner(
+      navigation,
+      new Poller(timer),
+      { messages: new VisibleMessages(document, visibility), menu },
+      presser,
     ),
   );
 }
 
 // A new enhancement is a new class and a new line here.
-const enhancements: Enhancement[] = [directLinks(), answeredInvites()];
+const enhancements: Enhancement[] = [
+  directLinks(),
+  answeredInvites(),
+  reportedPhishing(),
+];
 
 for (const enhancement of enhancements) enhancement.start();
