@@ -108,4 +108,46 @@ describe("content script", () => {
     expect(deleted).toHaveBeenCalled();
     vi.useRealTimers();
   });
+
+  it("bins an email reported as phishing from Spam", async () => {
+    vi.useFakeTimers();
+    Element.prototype.checkVisibility = () => true;
+    window.location.hash = "#spam/FMfcgzPhish";
+    await load();
+    document.body.insertAdjacentHTML(
+      "beforeend",
+      `<div data-message-id="#msg-f:7">
+         <div role="button" aria-label="More message options" id="phish-more"></div>
+       </div>
+       <div role="menu">
+         <div role="menuitem" id="phish-report">Report phishing</div>
+         <div role="menuitem" id="phish-delete">Delete</div>
+       </div>
+       <div role="alertdialog">
+         <button data-mdc-dialog-action="ok" id="phish-ok">Report Phishing Message</button>
+       </div>`,
+    );
+    const click = (id: string) => {
+      document
+        .getElementById(id)!
+        .dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    };
+    const deleted = vi.fn();
+    document
+      .getElementById("phish-delete")!
+      .addEventListener("mouseup", deleted);
+
+    click("phish-more");
+    click("phish-report");
+    click("phish-ok");
+    // Gmail goes back to the list, and the menu now offers to undo the report.
+    window.location.hash = "#spam";
+    document.getElementById("phish-report")!.textContent =
+      "Report as not phishing";
+    await vi.advanceTimersByTimeAsync(2000);
+
+    expect(window.location.hash).toBe("#spam/FMfcgzPhish");
+    expect(deleted).toHaveBeenCalled();
+    vi.useRealTimers();
+  });
 });

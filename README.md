@@ -1,11 +1,12 @@
 # Gmail Enhancements Chrome Extension 📬
 
-A little Chrome extension that smooths out the bits of Gmail that bug me. Right now that's two things, and it's built to collect more. No options page, no button, no settings. It just quietly makes Gmail nicer.
+A little Chrome extension that smooths out the bits of Gmail that bug me. Right now that's three things, and it's built to collect more. No options page, no button, no settings. It just quietly makes Gmail nicer.
 
 ## Enhancements ✨
 
 - **Direct links.** Click a link in an email and you go straight there, instead of bouncing through Google's "Redirect Notice" page first. Hover a link and you see where it really goes, too. 🎯
 - **Answered invites tidy themselves away.** Reply Yes, Maybe or No to a meeting invite and the email goes to Bin by itself, the way Outlook does it. Your answer's in your calendar anyway, so the email was just clutter. 🗓️
+- **Phishing you report from Spam goes to Bin.** Report an email that's already in Spam as phishing, and it gets deleted as well, instead of hanging around in Spam for another 30 days. 🎣
 
 ## What direct links does 🔗
 
@@ -35,6 +36,19 @@ What it leaves alone 🙅:
 - **Conversations with more than the invite.** Delete bins the whole conversation, so if there are replies, updates or anything else in there, nothing gets binned. You'd rather tidy one invite by hand than lose a reply.
 - **Anything while you've got rows ticked in the list.** Gmail's Delete would bin those too, so it does nothing.
 - **Invites you answer from the inbox list.** Only ones you open.
+
+## What reported phishing does 🎣
+
+Gmail's "Report phishing" on an email that's already in Spam sends the report and then leaves the email right where it was. This finishes the job:
+
+- **It waits for the report.** Nothing happens until you press "Report Phishing Message" in Gmail's dialog. Cancel, and it forgets the whole thing.
+- **It checks Gmail got it.** Gmail drops you back on the Spam list after a report. The extension opens the email again and looks at its menu: once that says "Report as not phishing", Gmail has the report, and only then does it press the menu's Delete.
+- **It goes to Bin, not into thin air.** Spam's own toolbar only has "Delete forever", so it uses the message menu's Delete, which moves it to Bin with Gmail's usual Undo.
+
+What it leaves alone 🙅:
+
+- **Reports from anywhere but Spam.** Report phishing from your inbox and Gmail moves it to Spam, as it always has.
+- **Anything after you've moved on.** If you go somewhere else before Gmail finishes, it stays put. Same if the email doesn't come back or the menu never says it was reported.
 
 ## Install it 🔧
 
@@ -71,11 +85,12 @@ Then hit the reload arrow on the Christian's Gmail Enhancements card in `chrome:
 - **It asks for no permissions.** It only runs on `mail.google.com`, so Chrome will say it can read and change your data there, and that's the whole list.
 - **You lose Google's warning page too.** The redirect is also where Gmail shows its "this link may be unsafe" page for links it doesn't trust. Once the links point straight at their targets, that page never gets a chance to appear, so a dodgy link in a dodgy email goes straight where it says. The same care you'd take anywhere else applies. ⚠️
 - **Any reply to an invite sends it to Bin, not into thin air.** Gmail keeps things in Bin for 30 days, so if you need an invite back, it's there. It uses English Gmail's button names, so in another language only the reply links inside Google Calendar invites work.
+- **You'll see the email flash back open after a phishing report.** That's the extension reopening it to check the report landed and press Delete. It's English-only too: in another language the menu words don't match and nothing happens.
 - **Why not block the redirect page itself?** Chrome could redirect `www.google.com/url` requests, but that needs access to google.com as well, and it can't decode the target properly anyway. Fixing the links before you click covers it without asking for more.
 
 ## No tracking 🔒
 
-No analytics, no tracking, no ads, no accounts, and nothing phoning home. It never talks to the internet at all, so nothing about your email leaves your machine. It reads link addresses on the page and rewrites them in place, and presses Gmail's own Delete on an invite you've answered, and that's it.
+No analytics, no tracking, no ads, no accounts, and nothing phoning home. It never talks to the internet at all, so nothing about your email leaves your machine. It reads link addresses on the page and rewrites them in place, and presses Gmail's own Delete on an invite you've answered or a Spam email you've reported as phishing, and that's it.
 
 ## Development 🛠️
 
@@ -107,6 +122,11 @@ How it fits together, all in `src`:
   - **`rsvp-labels.ts`** reads the answer off a Yes, Maybe or No button.
   - **`confirmation.ts`** and **`answer-state.ts`** wait until Gmail shows the reply as your answer.
   - **`invite-binner.ts`** presses Delete, using **`delete-finder.ts`** to find the right one, **`lone-invite.ts`** to check the invite is all it would bin, and **`presser.ts`** to press it.
+
+- **`reported-phishing/`** bins phishing you report from Spam:
+  - **`reported-phishing.ts`** hears the "Report phishing" click and the dialog's confirm, and only counts reports made from a conversation in Spam.
+  - **`spam-routes.ts`** says which addresses are a conversation in Spam, and which list Gmail goes back to.
+  - **`reported-binner.ts`** reopens the conversation, checks the menu says "Report as not phishing", then presses its Delete, using **`messages.ts`** to find the message again, **`message-menu.ts`** to read the menu, and **`poller.ts`** to wait for each step.
 
 Every class gets its collaborators through its constructor, behind an interface, so each one is tested on its own with fakes. Adding the next enhancement means a new class and one more line in the list in `main.ts`. 🧩
 

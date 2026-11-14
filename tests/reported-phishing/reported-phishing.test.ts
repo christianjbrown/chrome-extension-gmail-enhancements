@@ -1,0 +1,114 @@
+import { GmailMessageMenu } from "../../src/reported-phishing/message-menu";
+import { ReportedPhishing } from "../../src/reported-phishing/reported-phishing";
+import { SpamRoutes } from "../../src/reported-phishing/spam-routes";
+
+describe("ReportedPhishing", () => {
+  const conversation = "#spam/FMfcgzAbc";
+
+  function setup(route = conversation) {
+    document.body.innerHTML = `
+      <div data-message-id="#msg-f:1">
+        <div role="button" aria-label="More message options" id="more"></div>
+      </div>
+      <div role="menu">
+        <div role="menuitem" id="report">Report phishing</div>
+        <div role="menuitem" id="reply">Reply</div>
+      </div>
+      <div role="alertdialog">
+        <button data-mdc-dialog-action="cancel" id="cancel">Cancel</button>
+        <button data-mdc-dialog-action="ok" id="confirm"><span id="label">Report Phishing Message</span></button>
+      </div>
+      <button id="elsewhere">Elsewhere</button>
+      <p id="text">Words</p>`;
+    const afterReport = vi.fn(() => Promise.resolve());
+    const router = { current: vi.fn(() => route), go: vi.fn() };
+    new ReportedPhishing(
+      document,
+      { router, routes: new SpamRoutes() },
+      new GmailMessageMenu(document, { visible: () => true }),
+      { afterReport },
+    ).start();
+    const click = (...ids: string[]) => {
+      for (const id of ids)
+        document
+          .getElementById(id)!
+          .dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    };
+    return { afterReport, click };
+  }
+
+  it("cleans up once a report from Spam is confirmed", () => {
+    const { afterReport, click } = setup();
+
+    click("more", "report", "label");
+
+    expect(afterReport).toHaveBeenCalledExactlyOnceWith({
+      route: conversation,
+      messageId: "#msg-f:1",
+    });
+  });
+
+  it("does nothing when the report is cancelled", () => {
+    const { afterReport, click } = setup();
+
+    click("more", "report", "cancel", "confirm");
+
+    expect(afterReport).not.toHaveBeenCalled();
+  });
+
+  it("does nothing for a report made outside Spam", () => {
+    const { afterReport, click } = setup("#inbox/FMfcgzAbc");
+
+    click("more", "report", "confirm");
+
+    expect(afterReport).not.toHaveBeenCalled();
+  });
+
+  it("does nothing without knowing which message was reported", () => {
+    const { afterReport, click } = setup();
+
+    click("report", "confirm");
+
+    expect(afterReport).not.toHaveBeenCalled();
+  });
+
+  it("ignores other menu items and clicks", () => {
+    const { afterReport, click } = setup();
+
+    click("more", "reply", "elsewhere", "text", "confirm");
+
+    expect(afterReport).not.toHaveBeenCalled();
+  });
+
+  it("ignores clicks with no element behind them", () => {
+    const afterReport = vi.fn(() => Promise.resolve());
+    const listeners: ((event: Event) => void)[] = [];
+    new ReportedPhishing(
+      { addEventListener: (_type, listener) => listeners.push(listener) },
+      { router: { current: vi.fn(), go: vi.fn() }, routes: new SpamRoutes() },
+      new GmailMessageMenu(document, { visible: () => true }),
+      { afterReport },
+    ).start();
+
+    listeners[0]!(new Event("click"));
+
+    expect(afterReport).not.toHaveBeenCalled();
+  });
+
+  it("listens before Gmail's own handlers", () => {
+    const addEventListener = vi.fn();
+
+    new ReportedPhishing(
+      { addEventListener },
+      { router: { current: vi.fn(), go: vi.fn() }, routes: new SpamRoutes() },
+      new GmailMessageMenu(document, { visible: () => true }),
+      { afterReport: vi.fn() },
+    ).start();
+
+    expect(addEventListener).toHaveBeenCalledWith(
+      "click",
+      expect.any(Function),
+      { capture: true },
+    );
+  });
+});
