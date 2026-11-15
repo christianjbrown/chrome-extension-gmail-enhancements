@@ -6,7 +6,7 @@ A little Chrome extension that smooths out the bits of Gmail that bug me. Right 
 
 - **Direct links.** Click a link in an email and you go straight there, instead of bouncing through Google's "Redirect Notice" page first. Hover a link and you see where it really goes, too. 🎯
 - **Answered invites tidy themselves away.** Reply Yes, Maybe or No to a meeting invite and the email goes to Bin by itself, the way Outlook does it. Your answer's in your calendar anyway, so the email was just clutter. 🗓️
-- **Phishing you report from Spam goes to Bin.** Report an email that's already in Spam as phishing, and it gets deleted as well, instead of hanging around in Spam for another 30 days. 🎣
+- **Phishing you report goes to Bin.** Report an email as phishing, from your inbox, Spam or anywhere else, and it gets deleted as well, instead of hanging around in Spam for another 30 days. 🎣
 
 ## What direct links does 🔗
 
@@ -39,15 +39,14 @@ What it leaves alone 🙅:
 
 ## What reported phishing does 🎣
 
-Gmail's "Report phishing" on an email that's already in Spam sends the report and then leaves the email right where it was. This finishes the job:
+Gmail's "Report phishing" sends the report and then parks the email in Spam, or leaves it there if that's where it already was. This finishes the job:
 
 - **It waits for the report.** Nothing happens until you press "Report Phishing Message" in Gmail's dialog. Cancel, and it forgets the whole thing.
-- **It checks Gmail got it.** Gmail drops you back on the Spam list after a report. The extension opens the email again and looks at its menu: once that says "Report as not phishing", Gmail has the report, and only then does it press the menu's Delete.
+- **It checks Gmail got it.** Gmail drops you back on the list you came from after a report. The extension opens the email again, in Spam, and looks at its menu: once that says "Report as not phishing", Gmail has the report, and only then does it press the menu's Delete.
 - **It goes to Bin, not into thin air.** Spam's own toolbar only has "Delete forever", so it uses the message menu's Delete, which moves it to Bin with Gmail's usual Undo.
 
 What it leaves alone 🙅:
 
-- **Reports from anywhere but Spam.** Report phishing from your inbox and Gmail moves it to Spam, as it always has.
 - **Anything after you've moved on.** If you go somewhere else before Gmail finishes, it stays put. Same if the email doesn't come back or the menu never says it was reported.
 
 ## Install it 🔧
@@ -90,7 +89,7 @@ Then hit the reload arrow on the Christian's Gmail Enhancements card in `chrome:
 
 ## No tracking 🔒
 
-No analytics, no tracking, no ads, no accounts, and nothing phoning home. It never talks to the internet at all, so nothing about your email leaves your machine. It reads link addresses on the page and rewrites them in place, and presses Gmail's own Delete on an invite you've answered or a Spam email you've reported as phishing, and that's it.
+No analytics, no tracking, no ads, no accounts, and nothing phoning home. It never talks to the internet at all, so nothing about your email leaves your machine. It reads link addresses on the page and rewrites them in place, and presses Gmail's own Delete on an invite you've answered or an email you've reported as phishing, and that's it.
 
 ## Development 🛠️
 
@@ -123,10 +122,10 @@ How it fits together, all in `src`:
   - **`confirmation.ts`** and **`answer-state.ts`** wait until Gmail shows the reply as your answer.
   - **`invite-binner.ts`** presses Delete, using **`delete-finder.ts`** to find the right one, **`lone-invite.ts`** to check the invite is all it would bin, and **`presser.ts`** to press it.
 
-- **`reported-phishing/`** bins phishing you report from Spam:
-  - **`reported-phishing.ts`** hears the "Report phishing" click and the dialog's confirm, and only counts reports made from a conversation in Spam.
-  - **`spam-routes.ts`** says which addresses are a conversation in Spam, and which list Gmail goes back to.
-  - **`reported-binner.ts`** reopens the conversation, checks the menu says "Report as not phishing", then presses its Delete, using **`messages.ts`** to find the message again, **`message-menu.ts`** to read the menu, and **`poller.ts`** to wait for each step.
+- **`reported-phishing/`** bins phishing you report:
+  - **`reported-phishing.ts`** hears the "Report phishing" click and the dialog's confirm, and only counts reports made from an open conversation.
+  - **`gmail-routes.ts`** says which addresses are an open conversation, which list Gmail goes back to, and where the conversation lives in Spam.
+  - **`reported-binner.ts`** reopens the conversation in Spam, checks the menu says "Report as not phishing", then presses its Delete, using **`messages.ts`** to find the message again, **`message-menu.ts`** to read the menu, and **`poller.ts`** to wait for each step.
 
 Every class gets its collaborators through its constructor, behind an interface, so each one is tested on its own with fakes. Adding the next enhancement means a new class and one more line in the list in `main.ts`. 🧩
 

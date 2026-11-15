@@ -1,6 +1,6 @@
 // Where Gmail is, and a way to send it somewhere else. main.ts hands over the
 // window's location.
-import type { RoutePolicy } from "./spam-routes";
+import type { RoutePolicy } from "./gmail-routes";
 
 export interface Router {
   current(): string;
