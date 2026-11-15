@@ -1,9 +1,10 @@
 // Moves a message reported as phishing to Bin, once Gmail has the report.
 //
-// Confirming the report sends Gmail back to the Spam list, with the email
-// still in it, and the list has no Delete that goes to Bin: only "Delete
-// forever". So this opens the conversation again and uses the message menu's
-// own Delete, which moves it to Bin with Gmail's usual Undo. It deletes only
+// Confirming the report sends Gmail back to the list it was made from, with
+// the email now in Spam (or still there, when that is where it was), and
+// Spam has no Delete that goes to Bin: only "Delete forever". So this opens
+// the conversation again in Spam and uses the message menu's own Delete,
+// which moves it to Bin with Gmail's usual Undo. It deletes only
 // once that menu says "Report as not phishing", which is Gmail showing it has
 // the report.
 import type { Presser } from "../answered-invites/presser";
@@ -37,15 +38,15 @@ export class ReportedBinner implements Cleanup {
     if (button) await this.delete(button);
   }
 
-  // Back in the conversation, as long as Gmail went to the list and the
-  // person has not gone anywhere else since.
+  // Back in the conversation, now in Spam, as long as Gmail went to the list
+  // and the person has not gone anywhere else since.
   private async reopened({ route }: Report): Promise<boolean> {
     const { router, routes } = this.navigation;
     const left = await this.waiter.until(() =>
       router.current() === route ? undefined : true,
     );
     if (!left || router.current() !== routes.list(route)) return false;
-    router.go(route);
+    router.go(routes.inSpam(route));
     return true;
   }
 

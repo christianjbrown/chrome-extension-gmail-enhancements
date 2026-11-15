@@ -1,6 +1,6 @@
-// Report an email that is already in Spam as phishing and it goes to Bin as
-// well. Reporting it there leaves it sitting in Spam for another 30 days, when
-// the point of reporting was to be rid of it.
+// Report an email as phishing and it goes to Bin as well. Gmail only moves it
+// to Spam, or leaves it there, for another 30 days, when the point of
+// reporting was to be rid of it.
 import type { Enhancement } from "../enhancement";
 import type { EventSource } from "../event-source";
 import { REPORT } from "./labels";
@@ -58,7 +58,7 @@ export class ReportedPhishing implements Enhancement {
     else if (control.matches(DIALOG_ACTION)) this.answered(control);
   }
 
-  // Only a report made from a conversation open in Spam counts.
+  // Only a report made from an open conversation counts.
   private report(): Report | undefined {
     const route = this.navigation.router.current();
     const messageId = this.opened?.getAttribute(MESSAGE_ID);

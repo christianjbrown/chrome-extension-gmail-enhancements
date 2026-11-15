@@ -1,9 +1,9 @@
 import type { MessageMenu } from "../../src/reported-phishing/message-menu";
 import { ReportedBinner } from "../../src/reported-phishing/reported-binner";
-import { SpamRoutes } from "../../src/reported-phishing/spam-routes";
+import { GmailRoutes } from "../../src/reported-phishing/gmail-routes";
 
 describe("ReportedBinner", () => {
-  const route = "#spam/FMfcgzAbc";
+  const route = "#spam/FMfcgzAbcdefGhijkLmnopQrstuvWxyz";
   const report = { route, messageId: "#msg-f:1" };
   const message = document.createElement("div");
   const button = document.createElement("div");
@@ -40,7 +40,7 @@ describe("ReportedBinner", () => {
         Promise.resolve(look() ?? look()),
     };
     const binner = new ReportedBinner(
-      { router, routes: new SpamRoutes() },
+      { router, routes: new GmailRoutes() },
       waiter,
       { messages: { find }, menu },
       { press },
@@ -61,6 +61,16 @@ describe("ReportedBinner", () => {
     expect(press.mock.calls).toEqual([[button], [del]]);
   });
 
+  it("opens an email reported from the inbox in Spam to delete it", async () => {
+    const inbox = "#inbox/FMfcgzAbcdefGhijkLmnopQrstuvWxyz";
+    const { binner, router, press } = setup({ routes: [inbox, "#inbox"] });
+
+    await binner.afterReport({ route: inbox, messageId: "#msg-f:1" });
+
+    expect(router.go).toHaveBeenCalledExactlyOnceWith(route);
+    expect(press.mock.calls).toEqual([[button], [del]]);
+  });
+
   it("does nothing when Gmail never leaves the conversation", async () => {
     const { binner, router, press } = setup({ routes: [route] });
 
@@ -71,7 +81,7 @@ describe("ReportedBinner", () => {
   });
 
   it("does nothing when the person has gone somewhere else", async () => {
-    const { binner, router } = setup({ routes: [route, "#inbox"] });
+    const { binner, router } = setup({ routes: [route, "#starred"] });
 
     await binner.afterReport(report);
 

@@ -25,7 +25,7 @@ import { Poller } from "./reported-phishing/poller";
 import { ReportedBinner } from "./reported-phishing/reported-binner";
 import { ReportedPhishing } from "./reported-phishing/reported-phishing";
 import type { Router } from "./reported-phishing/router";
-import { SpamRoutes } from "./reported-phishing/spam-routes";
+import { GmailRoutes } from "./reported-phishing/gmail-routes";
 
 function directLinks(): Enhancement {
   const webOnly = new WebOnly();
@@ -82,7 +82,7 @@ function reportedPhishing(): Enhancement {
     },
   };
   const menu = new GmailMessageMenu(document, visibility);
-  const navigation = { router, routes: new SpamRoutes() };
+  const navigation = { router, routes: new GmailRoutes() };
   return new ReportedPhishing(
     window,
     navigation,
