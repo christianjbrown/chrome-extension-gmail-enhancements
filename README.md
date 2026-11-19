@@ -41,6 +41,7 @@ What it leaves alone 🙅:
 
 Gmail's "Report phishing" sends the report and then parks the email in Spam, or leaves it there if that's where it already was. This finishes the job:
 
+- **Either button counts.** Report from the message's ⋮ menu, or from the "Report phishing" button in the yellow warning box Gmail puts above a suspect email.
 - **It waits for the report.** Nothing happens until you press "Report Phishing Message" in Gmail's dialog. Cancel, and it forgets the whole thing.
 - **It checks Gmail got it.** Gmail drops you back on the list you came from after a report. The extension opens the email again, in Spam, and looks at its menu: once that says "Report as not phishing", Gmail has the report, and only then does it press the menu's Delete.
 - **It goes to Bin, not into thin air.** Spam's own toolbar only has "Delete forever", so it uses the message menu's Delete, which moves it to Bin with Gmail's usual Undo.
@@ -123,7 +124,7 @@ How it fits together, all in `src`:
   - **`invite-binner.ts`** presses Delete, using **`delete-finder.ts`** to find the right one, **`lone-invite.ts`** to check the invite is all it would bin, and **`presser.ts`** to press it.
 
 - **`reported-phishing/`** bins phishing you report:
-  - **`reported-phishing.ts`** hears the "Report phishing" click and the dialog's confirm, and only counts reports made from an open conversation.
+  - **`reported-phishing.ts`** hears the "Report phishing" click and the dialog's confirm, and only counts reports made from an open conversation. **`warning-box.ts`** knows which message the warning box's own "Report phishing" button belongs to.
   - **`gmail-routes.ts`** says which addresses are an open conversation, which list Gmail goes back to, and where the conversation lives in Spam.
   - **`reported-binner.ts`** reopens the conversation in Spam, checks the menu says "Report as not phishing", then presses its Delete, using **`messages.ts`** to find the message again, **`message-menu.ts`** to read the menu, and **`poller.ts`** to wait for each step.
 

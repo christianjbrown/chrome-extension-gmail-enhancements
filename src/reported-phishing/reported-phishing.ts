@@ -7,12 +7,20 @@ import { REPORT } from "./labels";
 import type { MessageMenu } from "./message-menu";
 import { MESSAGE_ID } from "./messages";
 import type { Navigation } from "./router";
+import type { ReportButton } from "./warning-box";
 
 export interface Report {
   // The address of the conversation the report was made from.
   route: string;
   // The id of the message reported.
   messageId: string;
+}
+
+// The two places Gmail offers "Report phishing": a message's own menu and the
+// warning box above a suspect message.
+export interface ReportControls {
+  menu: MessageMenu;
+  warning: ReportButton;
 }
 
 export interface Cleanup {
@@ -35,7 +43,7 @@ export class ReportedPhishing implements Enhancement {
   constructor(
     private readonly source: EventSource,
     private readonly navigation: Navigation,
-    private readonly menu: MessageMenu,
+    private readonly controls: ReportControls,
     private readonly cleanup: Cleanup,
   ) {}
 
@@ -52,16 +60,28 @@ export class ReportedPhishing implements Enhancement {
   private clicked(target: EventTarget | null): void {
     const control = (target as Partial<Element> | null)?.closest?.(CONTROLS);
     if (!control) return;
-    const owner = this.menu.owner(control);
+    if (control.matches(DIALOG_ACTION)) this.answered(control);
+    else this.chose(control);
+  }
+
+  private chose(control: Element): void {
+    const { menu } = this.controls;
+    const owner = menu.owner(control);
     if (owner) this.opened = owner;
-    else if (this.menu.is(control, REPORT)) this.pending = this.report();
-    else if (control.matches(DIALOG_ACTION)) this.answered(control);
+    else if (menu.is(control, REPORT)) this.pending = this.report(this.opened);
+    else this.fromWarning(control);
+  }
+
+  // The warning box's button names its message by where it sits.
+  private fromWarning(control: Element): void {
+    const message = this.controls.warning.message(control);
+    if (message) this.pending = this.report(message);
   }
 
   // Only a report made from an open conversation counts.
-  private report(): Report | undefined {
+  private report(message: Element | undefined): Report | undefined {
     const route = this.navigation.router.current();
-    const messageId = this.opened?.getAttribute(MESSAGE_ID);
+    const messageId = message?.getAttribute(MESSAGE_ID);
     if (!messageId || !this.navigation.routes.conversation(route))
       return undefined;
     return { route, messageId };

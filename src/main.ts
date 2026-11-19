@@ -26,6 +26,7 @@ import { ReportedBinner } from "./reported-phishing/reported-binner";
 import { ReportedPhishing } from "./reported-phishing/reported-phishing";
 import type { Router } from "./reported-phishing/router";
 import { GmailRoutes } from "./reported-phishing/gmail-routes";
+import { WarningBox } from "./reported-phishing/warning-box";
 
 function directLinks(): Enhancement {
   const webOnly = new WebOnly();
@@ -86,7 +87,7 @@ function reportedPhishing(): Enhancement {
   return new ReportedPhishing(
     window,
     navigation,
-    menu,
+    { menu, warning: new WarningBox() },
     new ReportedBinner(
       navigation,
       new Poller(timer),
