@@ -1,6 +1,7 @@
 import { GmailMessageMenu } from "../../src/reported-phishing/message-menu";
 import { ReportedPhishing } from "../../src/reported-phishing/reported-phishing";
 import { GmailRoutes } from "../../src/reported-phishing/gmail-routes";
+import { WarningBox } from "../../src/reported-phishing/warning-box";
 
 describe("ReportedPhishing", () => {
   const conversation = "#spam/FMfcgzAbcdefGhijkLmnopQrstuvWxyz";
@@ -9,6 +10,7 @@ describe("ReportedPhishing", () => {
     document.body.innerHTML = `
       <div data-message-id="#msg-f:1">
         <div role="button" aria-label="More message options" id="more"></div>
+        <button id="warning"><span id="warning-label">Report phishing</span></button>
       </div>
       <div role="menu">
         <div role="menuitem" id="report">Report phishing</div>
@@ -25,7 +27,10 @@ describe("ReportedPhishing", () => {
     new ReportedPhishing(
       document,
       { router, routes: new GmailRoutes() },
-      new GmailMessageMenu(document, { visible: () => true }),
+      {
+        menu: new GmailMessageMenu(document, { visible: () => true }),
+        warning: new WarningBox(),
+      },
       { afterReport },
     ).start();
     const click = (...ids: string[]) => {
@@ -50,6 +55,25 @@ describe("ReportedPhishing", () => {
       route,
       messageId: "#msg-f:1",
     });
+  });
+
+  it("cleans up once a report from the warning box is confirmed", () => {
+    const { afterReport, click } = setup();
+
+    click("warning-label", "confirm");
+
+    expect(afterReport).toHaveBeenCalledExactlyOnceWith({
+      route: conversation,
+      messageId: "#msg-f:1",
+    });
+  });
+
+  it("does nothing when a warning box report is cancelled", () => {
+    const { afterReport, click } = setup();
+
+    click("warning", "cancel", "confirm");
+
+    expect(afterReport).not.toHaveBeenCalled();
   });
 
   it("does nothing when the report is cancelled", () => {
@@ -90,7 +114,10 @@ describe("ReportedPhishing", () => {
     new ReportedPhishing(
       { addEventListener: (_type, listener) => listeners.push(listener) },
       { router: { current: vi.fn(), go: vi.fn() }, routes: new GmailRoutes() },
-      new GmailMessageMenu(document, { visible: () => true }),
+      {
+        menu: new GmailMessageMenu(document, { visible: () => true }),
+        warning: new WarningBox(),
+      },
       { afterReport },
     ).start();
 
@@ -105,7 +132,10 @@ describe("ReportedPhishing", () => {
     new ReportedPhishing(
       { addEventListener },
       { router: { current: vi.fn(), go: vi.fn() }, routes: new GmailRoutes() },
-      new GmailMessageMenu(document, { visible: () => true }),
+      {
+        menu: new GmailMessageMenu(document, { visible: () => true }),
+        warning: new WarningBox(),
+      },
       { afterReport: vi.fn() },
     ).start();
 
