@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Christian's Gmail Enhancements",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Small fixes for Gmail. Links in emails go straight where they point, and answered invites and phishing you report tidy themselves into Bin.",
   "minimum_chrome_version": "126",
   "icons": {
