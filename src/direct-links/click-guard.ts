@@ -1,6 +1,6 @@
 // Cleans a link again in the instant it is pressed, before any of Gmail's own
 // handlers run, in case Gmail rewrote it after the watcher last saw it.
-import { LINK, MOUSE_EVENTS } from "../dom";
+import { LINK, MOUSE_EVENTS, closestTo } from "../dom";
 import type { Enhancement } from "../enhancement";
 import { BEFORE_GMAIL, type EventSource } from "../event-source";
 import type { Cleaner } from "./cleaner";
@@ -31,8 +31,7 @@ export class ClickGuard implements Enhancement {
   }
 
   private guard(event: Event): void {
-    const target = event.target as Partial<Element> | null;
-    const link = target?.closest?.(LINK);
+    const link = closestTo(event.target, LINK);
     if (link) this.cleaner.clean(link);
   }
 }

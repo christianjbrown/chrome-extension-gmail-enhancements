@@ -4,6 +4,11 @@ import type { AnswerState } from "./answer-state";
 import type { Confirmation } from "./confirmation";
 import type { Rsvp } from "./rsvp";
 
+// How many looks in a row have shown the answer.
+interface Looks {
+  streak: number;
+}
+
 export class GmailConfirmation implements Confirmation {
   constructor(
     private readonly waiter: Waiter,
@@ -14,15 +19,33 @@ export class GmailConfirmation implements Confirmation {
   ) {}
 
   async confirmed(rsvp: Rsvp, click: Event): Promise<boolean> {
-    let streak = 0;
-    const outcome = await this.waiter.until(() => {
-      // Gone from the page: the person moved on, so leave it be.
-      if (!rsvp.message.isConnected) return false;
-      if (rsvp.recording.recordedBy(click)) return true;
-      streak = this.state.answered(rsvp.message, rsvp.answer) ? streak + 1 : 0;
-      return streak === this.settled ? true : undefined;
-    });
+    const looks: Looks = { streak: 0 };
+    const outcome = await this.waiter.until(() =>
+      this.look(rsvp, click, looks),
+    );
     // Out of looks: the reply never showed, so the email stays.
     return outcome ?? false;
+  }
+
+  // Gone from the page: the person moved on, so leave it be.
+  private look(rsvp: Rsvp, click: Event, looks: Looks): boolean | undefined {
+    return rsvp.message.isConnected ? this.lookAt(rsvp, click, looks) : false;
+  }
+
+  // True once it is recorded, and undefined to look again.
+  private lookAt(rsvp: Rsvp, click: Event, looks: Looks): true | undefined {
+    return rsvp.recording.recordedBy(click)
+      ? true
+      : this.settledOn(rsvp, looks);
+  }
+
+  private settledOn(rsvp: Rsvp, looks: Looks): true | undefined {
+    looks.streak = this.nextStreak(rsvp, looks.streak);
+    return looks.streak === this.settled ? true : undefined;
+  }
+
+  // A look that does not show the answer starts the count again.
+  private nextStreak(rsvp: Rsvp, streak: number): number {
+    return this.state.answered(rsvp.message, rsvp.answer) ? streak + 1 : 0;
   }
 }

@@ -21,11 +21,26 @@ export class NearestDelete implements DeleteFinder {
   // message and stop at the first ancestor holding any. More than one there
   // means no telling which acts on what, so none is used.
   find(message: Element): DeleteButton | undefined {
-    for (let view = message.parentElement; view; view = view.parentElement) {
-      const [control, ...others] = this.controls(view);
-      if (control) return others.length === 0 ? { control, view } : undefined;
-    }
-    return undefined;
+    return this.from(message.parentElement);
+  }
+
+  private from(view: Element | null): DeleteButton | undefined {
+    return view ? this.at(view) : undefined;
+  }
+
+  private at(view: Element): DeleteButton | undefined {
+    const [control, ...others] = this.controls(view);
+    return control
+      ? this.only(control, others, view)
+      : this.from(view.parentElement);
+  }
+
+  private only(
+    control: Element,
+    others: Element[],
+    view: Element,
+  ): DeleteButton | undefined {
+    return others.length === 0 ? { control, view } : undefined;
   }
 
   // Anything inside a message is the sender's markup, not Gmail's.

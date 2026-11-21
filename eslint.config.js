@@ -43,6 +43,12 @@ export default tseslint.config(
     },
   },
   {
+    // At most one decision per function in the extension's own code, so 100%
+    // branch coverage is also 100% path coverage.
+    files: ["src/**/*.ts"],
+    rules: { complexity: ["error", 2] },
+  },
+  {
     files: ["tests/**/*.ts"],
     rules: {
       "max-lines-per-function": "off",

@@ -11,7 +11,19 @@ export class LinkScanner implements Scanner {
   constructor(private readonly cleaner: Cleaner) {}
 
   scan(root: Node): void {
-    if (isElement(root) && root.matches(LINKS)) this.cleaner.clean(root);
+    this.cleanSelf(root);
+    this.cleanInside(root);
+  }
+
+  private cleanSelf(root: Node): void {
+    if (isElement(root)) this.cleanIfLink(root);
+  }
+
+  private cleanIfLink(element: Element): void {
+    if (element.matches(LINKS)) this.cleaner.clean(element);
+  }
+
+  private cleanInside(root: Node): void {
     if (isParent(root))
       root.querySelectorAll(LINKS).forEach((link) => {
         this.cleaner.clean(link);

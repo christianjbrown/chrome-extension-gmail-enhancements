@@ -71,4 +71,13 @@ describe("ReportPresses", () => {
     expect(handler.answered).not.toHaveBeenCalled();
     expect(handler.reported).not.toHaveBeenCalled();
   });
+
+  it("ignores a press whose target is not an element", () => {
+    const { presses, handler } = setup(DIALOG_CHOICE.confirm);
+
+    presses.sort(window, handler);
+
+    expect(handler.answered).not.toHaveBeenCalled();
+    expect(handler.reported).not.toHaveBeenCalled();
+  });
 });

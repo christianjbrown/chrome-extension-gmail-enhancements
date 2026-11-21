@@ -13,7 +13,11 @@ export class ReplyLinkRsvps implements RsvpWay {
 
   rsvp(control: Element, message: Element): Rsvp | undefined {
     const href = control.getAttribute(HREF);
-    const answer = href === null ? undefined : this.links.answer(href);
+    return href === null ? undefined : this.fromLink(href, message);
+  }
+
+  private fromLink(href: string, message: Element): Rsvp | undefined {
+    const answer = this.links.answer(href);
     return answer === undefined
       ? undefined
       : { answer, message, recording: this.recording };

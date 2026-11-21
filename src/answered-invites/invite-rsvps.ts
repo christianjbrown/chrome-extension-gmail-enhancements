@@ -1,7 +1,7 @@
 // Reads the answer a click gave, trying each way an invitation can be
 // answered.
-import { BUTTON, HREF, LINK, ROLE_BUTTON } from "../dom";
-import { MESSAGE } from "../gmail-message";
+import { BUTTON, HREF, LINK, ROLE_BUTTON, closestTo } from "../dom";
+import { messageOf } from "../gmail-message";
 import type { CardMessages } from "./card-messages";
 import type { Rsvp } from "./rsvp";
 import type { RsvpReader } from "./rsvp-reader";
@@ -24,10 +24,17 @@ export class InviteRsvps implements RsvpReader {
   // The control is in the message, or on the event card Gmail draws above
   // it.
   read(target: EventTarget | null): Rsvp | undefined {
-    const control = (target as Partial<Element> | null)?.closest?.(CONTROLS);
-    if (!control) return undefined;
-    const message = control.closest(MESSAGE) ?? this.onCard(control);
+    const control = closestTo(target, CONTROLS);
+    return control ? this.fromControl(control) : undefined;
+  }
+
+  private fromControl(control: Element): Rsvp | undefined {
+    const message = this.messageFor(control);
     return message ? this.reply(control, message) : undefined;
+  }
+
+  private messageFor(control: Element): Element | undefined {
+    return messageOf(control) ?? this.onCard(control);
   }
 
   private onCard(control: Element): Element | undefined {
@@ -35,10 +42,9 @@ export class InviteRsvps implements RsvpReader {
   }
 
   private reply(control: Element, message: Element): Rsvp | undefined {
-    for (const way of this.ways) {
-      const rsvp = way.rsvp(control, message);
-      if (rsvp) return rsvp;
-    }
-    return undefined;
+    return this.ways.reduce<Rsvp | undefined>(
+      (found, way) => found ?? way.rsvp(control, message),
+      undefined,
+    );
   }
 }

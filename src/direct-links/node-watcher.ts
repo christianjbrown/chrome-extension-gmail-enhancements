@@ -6,6 +6,17 @@ import type { Watcher } from "./watcher";
 // The kind of record a change to a watched attribute makes.
 const ATTRIBUTE_CHANGE: MutationRecordType = "attributes";
 
+// A changed attribute names its element, and added nodes come as they are.
+function changedBy(
+  record: MutationRecord,
+  changed: (node: Node) => void,
+): void {
+  if (record.type === ATTRIBUTE_CHANGE) changed(record.target);
+  record.addedNodes.forEach((node) => {
+    changed(node);
+  });
+}
+
 export class NodeWatcher implements Watcher {
   constructor(
     private readonly observe: ObserverFactory,
@@ -15,12 +26,9 @@ export class NodeWatcher implements Watcher {
 
   watch(changed: (node: Node) => void): void {
     this.observe((records) => {
-      for (const record of records) {
-        if (record.type === ATTRIBUTE_CHANGE) changed(record.target);
-        record.addedNodes.forEach((node) => {
-          changed(node);
-        });
-      }
+      records.forEach((record) => {
+        changedBy(record, changed);
+      });
     }).observe(this.root, {
       childList: true,
       subtree: true,

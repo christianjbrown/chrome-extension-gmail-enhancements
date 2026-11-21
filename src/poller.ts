@@ -18,6 +18,15 @@ export class Poller implements Waiter {
   ): Promise<T | undefined> {
     if (polls === this.schedule.checks) return undefined;
     await this.timer.delay(this.schedule.everyMs);
-    return find() ?? this.poll(find, polls + 1);
+    return this.orNext(find(), find, polls);
+  }
+
+  // Looks again when this look found nothing.
+  private async orNext<T>(
+    found: T | undefined,
+    find: () => T | undefined,
+    polls: number,
+  ): Promise<T | undefined> {
+    return found ?? this.poll(find, polls + 1);
   }
 }

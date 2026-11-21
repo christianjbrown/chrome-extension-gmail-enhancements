@@ -2,7 +2,7 @@
 // so nothing is ever deleted for good and Undo works as usual.
 import type { Presser } from "../presser";
 import type { Binner } from "./binner";
-import type { DeleteFinder } from "./delete-finder";
+import type { DeleteButton, DeleteFinder } from "./delete-finder";
 import type { SafetyCheck } from "./safety-check";
 
 export class ConversationBinner implements Binner {
@@ -13,9 +13,16 @@ export class ConversationBinner implements Binner {
   ) {}
 
   bin(message: Element): void {
-    if (!message.isConnected) return;
+    if (message.isConnected) this.binShown(message);
+  }
+
+  private binShown(message: Element): void {
     const button = this.finder.find(message);
-    if (button && this.check.onlyInvite(message, button.view))
+    if (button) this.pressIfSafe(message, button);
+  }
+
+  private pressIfSafe(message: Element, button: DeleteButton): void {
+    if (this.check.onlyInvite(message, button.view))
       this.presser.press(button.control);
   }
 }

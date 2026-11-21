@@ -13,8 +13,11 @@ const CONFIRM = "ok";
 export class GmailReportDialog implements ReportDialog {
   // Cancel, or anything else, dismisses it.
   choice(control: Element): DialogChoice | undefined {
-    if (!control.matches(BUTTONS)) return undefined;
-    return control.getAttribute(ACTION) === CONFIRM
+    return control.matches(BUTTONS) ? this.answer(control) : undefined;
+  }
+
+  private answer(button: Element): DialogChoice {
+    return button.getAttribute(ACTION) === CONFIRM
       ? DIALOG_CHOICE.confirm
       : DIALOG_CHOICE.dismiss;
   }

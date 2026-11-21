@@ -129,7 +129,7 @@ How it fits together, all in `src`:
 - **`reported-phishing/`** bins phishing you report:
   - **`reported-phishing.ts`** hears the "Report phishing" click and the dialog's confirm, and only counts reports made from an open conversation. **`menu-reports.ts`** knows which message's menu was opened, **`warning-box.ts`** knows which message the warning box's own "Report phishing" button belongs to, and **`gmail-report-dialog.ts`** reads the dialog's answer.
   - **`gmail-routes.ts`** says which addresses are an open conversation, which list Gmail goes back to, and where the conversation lives in Spam.
-  - **`reported-binner.ts`** reopens the conversation in Spam, checks the menu says "Report as not phishing", then presses its Delete, using **`messages.ts`** to find the message again, **`message-menu.ts`** to read the menu, and the shared poller to wait for each step.
+  - **`reported-binner.ts`** puts the cleanup together: **`gmail-spam-return.ts`** waits for Gmail to go back to the list and reopens the conversation in Spam, **`messages.ts`** finds the message again, and **`menu-delete.ts`** checks the menu says "Report as not phishing" before pressing its Delete, reading the menu through **`message-menu.ts`**. The shared poller waits for each step.
   - **`hash-router.ts`** reads and sets where Gmail is.
 
 Every class gets its collaborators through its constructor, behind an interface, so each one is tested on its own with fakes. The interfaces live in files of their own, named after them (`timer.ts`, `unwrapper.ts`, `report-place.ts` and friends), with no code in them. Adding the next enhancement means a new class and one more line in the list in `main.ts`. 🧩

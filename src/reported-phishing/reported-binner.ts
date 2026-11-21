@@ -1,55 +1,28 @@
-// Moves a message reported as phishing to Bin, once Gmail has the report.
-//
-// Confirming the report sends Gmail back to the list it was made from, with
-// the email now in Spam (or still there, when that is where it was), and
-// Spam has no Delete that goes to Bin: only "Delete forever". So this opens
-// the conversation again in Spam and uses the message menu's own Delete,
-// which moves it to Bin with Gmail's usual Undo. It deletes only
-// once that menu says "Report as not phishing", which is Gmail showing it has
-// the report.
-import type { Presser } from "../presser";
-import { DELETE, REPORTED } from "../gmail-labels";
-import type { Conversation } from "./conversation";
+// Moves a message reported as phishing to Bin, once Gmail has the report:
+// back to the conversation where Gmail moved it, then the message's own Delete.
+import type { MessageLookup } from "./message-lookup";
 import type { Cleanup, Report } from "./report";
-import type { SpamNavigation } from "./router";
+import type { ReportedDelete } from "./reported-delete";
+import type { SpamReturn } from "./spam-return";
 import type { Waiter } from "../waiter";
 
 export class ReportedBinner implements Cleanup {
   constructor(
-    private readonly navigation: SpamNavigation,
+    private readonly spam: SpamReturn,
     private readonly waiter: Waiter,
-    private readonly conversation: Conversation,
-    private readonly presser: Presser,
+    private readonly messages: MessageLookup,
+    private readonly deleter: ReportedDelete,
   ) {}
 
   async afterReport(report: Report): Promise<void> {
-    if (!(await this.reopened(report))) return;
+    if (await this.spam.reopen(report)) await this.bin(report.messageId);
+  }
+
+  // The message may not show up again, and then it stays where it is.
+  private async bin(messageId: string): Promise<void> {
     const message = await this.waiter.until(() =>
-      this.conversation.messages.find(report.messageId),
+      this.messages.find(messageId),
     );
-    const button = message && this.conversation.buttons.button(message);
-    if (button) await this.delete(button);
-  }
-
-  // Back in the conversation, now in Spam, as long as Gmail went to the list
-  // and the person has not gone anywhere else since.
-  private async reopened({ route }: Report): Promise<boolean> {
-    const { router, routes } = this.navigation;
-    const left = await this.waiter.until(() =>
-      router.current() === route ? undefined : true,
-    );
-    if (!left || router.current() !== routes.list(route)) return false;
-    router.go(routes.inSpam(route));
-    return true;
-  }
-
-  private async delete(button: Element): Promise<void> {
-    this.presser.press(button);
-    const reported = await this.waiter.until(() =>
-      this.conversation.items.item(REPORTED),
-    );
-    const del = reported && this.conversation.items.sibling(reported, DELETE);
-    // No sign of the report, so the email stays, with its menu left open.
-    if (del) this.presser.press(del);
+    if (message) await this.deleter.delete(message);
   }
 }

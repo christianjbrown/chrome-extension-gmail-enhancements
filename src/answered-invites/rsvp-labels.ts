@@ -11,13 +11,19 @@ import type { Labels } from "./labels";
 // The first whole word, so "Yes, I'll be there" counts and "Notes" does not.
 const FIRST_WORD = /^\w+/;
 
+// The aria-label a screen reader announces, or the text when there is none.
+const labelOf = (control: Element): string =>
+  control.getAttribute(ARIA_LABEL) ?? control.textContent;
+
+const firstWord = (label: string): string | undefined =>
+  FIRST_WORD.exec(label.trim())?.[0];
+
 export class RsvpLabels implements Labels {
   // Each answer's word, in lower case.
   constructor(private readonly words: ReadonlyMap<string, Answer>) {}
 
   answer(control: Element): Answer | undefined {
-    const label = control.getAttribute(ARIA_LABEL) ?? control.textContent;
-    const word = FIRST_WORD.exec(label.trim())?.[0];
+    const word = firstWord(labelOf(control));
     return word === undefined ? undefined : this.words.get(word.toLowerCase());
   }
 }

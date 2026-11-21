@@ -38,6 +38,8 @@ import { MenuReports } from "./reported-phishing/menu-reports";
 import { GmailMessageMenu } from "./reported-phishing/message-menu";
 import { VisibleMessages } from "./reported-phishing/messages";
 import { ReportPresses } from "./reported-phishing/report-presses";
+import { GmailSpamReturn } from "./reported-phishing/gmail-spam-return";
+import { MenuDelete } from "./reported-phishing/menu-delete";
 import { ReportedBinner } from "./reported-phishing/reported-binner";
 import { ReportedPhishing } from "./reported-phishing/reported-phishing";
 import { WarningBox } from "./reported-phishing/warning-box";
@@ -106,6 +108,7 @@ function answeredInvites(): Enhancement {
 function reportedPhishing(): Enhancement {
   const router = new HashRouter(window.location);
   const menu = new GmailMessageMenu(document, visibility);
+  const waiter = new Poller(timer, CONTENT_CONFIG.phishingChecks);
   const navigation = {
     router,
     routes: new GmailRoutes(CONTENT_CONFIG.conversationIdMinLength),
@@ -118,14 +121,10 @@ function reportedPhishing(): Enhancement {
     }),
     new ConversationReports(navigation),
     new ReportedBinner(
-      navigation,
-      new Poller(timer, CONTENT_CONFIG.phishingChecks),
-      {
-        messages: new VisibleMessages(document, visibility),
-        buttons: menu,
-        items: menu,
-      },
-      presser,
+      new GmailSpamReturn(navigation, waiter),
+      waiter,
+      new VisibleMessages(document, visibility),
+      new MenuDelete(menu, menu, waiter, presser),
     ),
   );
 }

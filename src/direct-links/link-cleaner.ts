@@ -15,13 +15,28 @@ export class LinkCleaner implements Cleaner {
   // through the watcher as no-ops rather than a loop.
   clean(link: Element): void {
     const href = link.getAttribute(HREF);
-    if (href === null) return;
+    if (href !== null) this.cleanHref(link, href);
+  }
+
+  private cleanHref(link: Element, href: string): void {
     const direct = this.unwrapper.unwrap(href);
+    this.point(link, direct);
+    this.dropRedirect(link, direct ?? href);
+  }
+
+  // A link that is not wrapped stays as it is.
+  private point(link: Element, direct: string | undefined): void {
     if (direct !== undefined) link.setAttribute(HREF, direct);
-    if (
-      link.hasAttribute(SAFE_REDIRECT) &&
-      this.policy.accept(direct ?? href) !== undefined
-    )
+  }
+
+  // Without Gmail's redirect there is nothing for it to swap in on mousedown.
+  private dropRedirect(link: Element, target: string): void {
+    if (link.hasAttribute(SAFE_REDIRECT)) this.dropIfSafe(link, target);
+  }
+
+  // Only once the link itself goes somewhere safe.
+  private dropIfSafe(link: Element, target: string): void {
+    if (this.policy.accept(target) !== undefined)
       link.removeAttribute(SAFE_REDIRECT);
   }
 }
