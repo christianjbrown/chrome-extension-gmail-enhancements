@@ -3,11 +3,14 @@
 // "Based on this email" under it. It sits beside the message rather than in
 // it, in an element whose data-container-id names the message, such as
 // "0:msg-f:123:extractedsmartmailevent" for data-message-id="#msg-f:123".
-import { MESSAGE_ID } from "./gmail-message";
+import { MESSAGE_ID } from "../gmail-message";
 
-export interface EventCards {
+export interface CardMessages {
   // The message a control on a card is about.
   message(control: Element): Element | undefined;
+}
+
+export interface MessageCards {
   // The card Gmail drew for a message, if any. Gmail draws a new card each
   // time it records an answer, so it is looked up afresh rather than kept.
   card(message: Element): Element | undefined;
@@ -26,7 +29,7 @@ const CONTAINED = new RegExp(`(?:^|${SEPARATOR})(${ID})${SEPARATOR}`);
 // A message id as data-message-id carries it.
 const MESSAGE_ID_VALUE = new RegExp(`^${ID_PREFIX}?(${ID})$`);
 
-export class SmartEventCards implements EventCards {
+export class SmartEventCards implements CardMessages, MessageCards {
   message(control: Element): Element | undefined {
     const card = control.closest(CARD);
     const id = CONTAINED.exec(card?.getAttribute(CONTAINER_ID) ?? "")?.[1];

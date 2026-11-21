@@ -1,5 +1,5 @@
 // Presses one of Gmail's buttons the way a mouse does.
-import { MOUSE_EVENTS } from "../dom";
+import { MOUSE_EVENTS } from "./dom";
 
 export interface Presser {
   press(control: Element): void;

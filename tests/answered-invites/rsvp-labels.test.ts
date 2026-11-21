@@ -1,5 +1,5 @@
-import { ANSWER_WORDS } from "../../src/gmail-labels";
 import { RsvpLabels } from "../../src/answered-invites/rsvp-labels";
+import { ANSWER_WORDS } from "../../src/gmail-labels";
 
 function control(markup: string): Element {
   const root = document.createElement("div");

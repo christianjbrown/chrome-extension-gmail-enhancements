@@ -4,16 +4,16 @@ import { ChosenAnswer } from "./answered-invites/answer-state";
 import { AnsweredInvites } from "./answered-invites/answered-invites";
 import { CalendarReplyLink } from "./answered-invites/calendar-reply";
 import { GmailConfirmation } from "./answered-invites/confirmation";
-import { SmartEventCards } from "./answered-invites/event-card";
 import { NearestDelete } from "./answered-invites/delete-finder";
+import { SmartEventCards } from "./answered-invites/event-card";
 import { ConversationBinner } from "./answered-invites/invite-binner";
-import { LoneInvite } from "./answered-invites/lone-invite";
-import { MousePresser } from "./answered-invites/presser";
-import { RsvpLabels } from "./answered-invites/rsvp-labels";
-import { InviteRsvps } from "./answered-invites/rsvp-reader";
 import { CalendarInvite } from "./answered-invites/invite-check";
 import { LabelledRsvps } from "./answered-invites/labelled-rsvps";
+import { LoneInvite } from "./answered-invites/lone-invite";
 import { ReplyLinkRsvps } from "./answered-invites/reply-link-rsvps";
+import { RsvpLabels } from "./answered-invites/rsvp-labels";
+import { InviteRsvps } from "./answered-invites/rsvp-reader";
+import { CONTENT_CONFIG } from "./config";
 import { ClickGuard } from "./direct-links/click-guard";
 import { DirectLinks } from "./direct-links/direct-links";
 import {
@@ -24,18 +24,18 @@ import { LINK_ATTRIBUTES, LinkCleaner } from "./direct-links/link-cleaner";
 import { LinkScanner } from "./direct-links/link-scanner";
 import { NodeWatcher } from "./direct-links/node-watcher";
 import { WebOnly } from "./direct-links/url-policy";
-import { CONTENT_CONFIG } from "./config";
 import type { Enhancement } from "./enhancement";
 import { ANSWER_WORDS } from "./gmail-labels";
+import { MousePresser } from "./presser";
+import { GmailRoutes } from "./reported-phishing/gmail-routes";
+import { MenuReports } from "./reported-phishing/menu-reports";
 import { GmailMessageMenu } from "./reported-phishing/message-menu";
 import { VisibleMessages } from "./reported-phishing/messages";
 import { Poller } from "./reported-phishing/poller";
+import { GmailReportDialog } from "./reported-phishing/report-dialog";
 import { ReportedBinner } from "./reported-phishing/reported-binner";
 import { ReportedPhishing } from "./reported-phishing/reported-phishing";
-import { MenuReports } from "./reported-phishing/menu-reports";
-import { GmailReportDialog } from "./reported-phishing/report-dialog";
 import type { Router } from "./reported-phishing/router";
-import { GmailRoutes } from "./reported-phishing/gmail-routes";
 import { WarningBox } from "./reported-phishing/warning-box";
 
 function directLinks(): Enhancement {
@@ -116,13 +116,17 @@ function reportedPhishing(): Enhancement {
     window,
     navigation,
     {
-      places: [new MenuReports(menu), new WarningBox()],
+      places: [new MenuReports(menu, menu), new WarningBox()],
       dialog: new GmailReportDialog(),
     },
     new ReportedBinner(
       navigation,
       new Poller(timer, CONTENT_CONFIG.phishingChecks),
-      { messages: new VisibleMessages(document, visibility), menu },
+      {
+        messages: new VisibleMessages(document, visibility),
+        buttons: menu,
+        items: menu,
+      },
       presser,
     ),
   );

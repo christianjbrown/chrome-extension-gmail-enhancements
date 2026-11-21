@@ -1,8 +1,8 @@
 // Finds the Delete button that acts on the conversation a message is in.
 import { ARIA_LABEL, ROLE_BUTTON } from "../dom";
 import { DELETE as DELETE_LABEL } from "../gmail-labels";
-import { MESSAGE } from "./gmail-message";
-import type { Visibility } from "./visibility";
+import { MESSAGE } from "../gmail-message";
+import type { Visibility } from "../visibility";
 
 export interface DeleteButton {
   control: Element;

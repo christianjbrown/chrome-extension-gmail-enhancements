@@ -1,7 +1,7 @@
 // Report an email as phishing and it goes to Bin as well. Gmail only moves it
 // to Spam, or leaves it there, for another 30 days, when the point of
 // reporting was to be rid of it.
-import { MESSAGE_ID } from "../answered-invites/gmail-message";
+import { MESSAGE_ID } from "../gmail-message";
 import { BUTTON, MOUSE_EVENTS, ROLE_BUTTON, ROLE_MENU_ITEM } from "../dom";
 import type { Enhancement } from "../enhancement";
 import type { EventSource } from "../event-source";
@@ -11,7 +11,7 @@ import {
   type ReportDialog,
 } from "./report-dialog";
 import type { ReportPlace } from "./report-place";
-import type { Navigation } from "./router";
+import type { ConversationNavigation } from "./router";
 
 export interface Report {
   // The address of the conversation the report was made from.
@@ -40,7 +40,7 @@ export class ReportedPhishing implements Enhancement {
 
   constructor(
     private readonly source: EventSource,
-    private readonly navigation: Navigation,
+    private readonly navigation: ConversationNavigation,
     private readonly controls: ReportControls,
     private readonly cleanup: Cleanup,
   ) {}

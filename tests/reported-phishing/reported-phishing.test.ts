@@ -6,11 +6,9 @@ import { GmailRoutes } from "../../src/reported-phishing/gmail-routes";
 import { WarningBox } from "../../src/reported-phishing/warning-box";
 
 function controls() {
+  const menu = new GmailMessageMenu(document, { visible: () => true });
   return {
-    places: [
-      new MenuReports(new GmailMessageMenu(document, { visible: () => true })),
-      new WarningBox(),
-    ],
+    places: [new MenuReports(menu, menu), new WarningBox()],
     dialog: new GmailReportDialog(),
   };
 }
@@ -35,7 +33,7 @@ describe("ReportedPhishing", () => {
       <button id="elsewhere">Elsewhere</button>
       <p id="text">Words</p>`;
     const afterReport = vi.fn(() => Promise.resolve());
-    const router = { current: vi.fn(() => route), go: vi.fn() };
+    const router = { current: vi.fn(() => route) };
     new ReportedPhishing(
       document,
       { router, routes: new GmailRoutes(16) },
@@ -123,7 +121,7 @@ describe("ReportedPhishing", () => {
     new ReportedPhishing(
       { addEventListener: (_type, listener) => listeners.push(listener) },
       {
-        router: { current: vi.fn(), go: vi.fn() },
+        router: { current: vi.fn() },
         routes: new GmailRoutes(16),
       },
       controls(),
@@ -141,7 +139,7 @@ describe("ReportedPhishing", () => {
     new ReportedPhishing(
       { addEventListener },
       {
-        router: { current: vi.fn(), go: vi.fn() },
+        router: { current: vi.fn() },
         routes: new GmailRoutes(16),
       },
       controls(),

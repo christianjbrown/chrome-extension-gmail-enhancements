@@ -1,8 +1,8 @@
 // Says whether binning the conversation would take only the invitation.
 // Gmail's Delete bins the whole conversation, and acts on any rows checked in
 // the list instead, so anything else in reach means the email stays put.
-import { MESSAGE } from "./gmail-message";
-import type { Visibility } from "./visibility";
+import { MESSAGE } from "../gmail-message";
+import type { Visibility } from "../visibility";
 
 export interface SafetyCheck {
   onlyInvite(message: Element, view: Element): boolean;

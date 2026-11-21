@@ -1,8 +1,8 @@
 // Works out whether a click answered an invitation, and how.
 import { BUTTON, HREF, LINK, ROLE_BUTTON } from "../dom";
 import type { Answer } from "./answer";
-import type { EventCards } from "./event-card";
-import { MESSAGE } from "./gmail-message";
+import type { CardMessages } from "./event-card";
+import { MESSAGE } from "../gmail-message";
 
 // A Calendar reply link, or a control on one of Gmail's invite cards.
 export const VIA = { link: "link", button: "button" } as const;
@@ -36,7 +36,7 @@ export class InviteRsvps implements RsvpReader {
   // The ways are tried in order, and the first that reads an answer wins.
   constructor(
     private readonly ways: readonly RsvpWay[],
-    private readonly cards: EventCards,
+    private readonly cards: CardMessages,
   ) {}
 
   // The control is in the message, or on the event card Gmail draws above
