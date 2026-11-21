@@ -24,10 +24,12 @@ import { LINK_ATTRIBUTES, LinkCleaner } from "./direct-links/link-cleaner";
 import { LinkScanner } from "./direct-links/link-scanner";
 import { NodeWatcher } from "./direct-links/node-watcher";
 import { WebOnly } from "./direct-links/url-policy";
+import { ElementVisibility } from "./element-visibility";
 import type { Enhancement } from "./enhancement";
 import { ANSWER_WORDS } from "./gmail-labels";
 import { MousePresser } from "./presser";
 import { GmailRoutes } from "./reported-phishing/gmail-routes";
+import { HashRouter } from "./reported-phishing/hash-router";
 import { MenuReports } from "./reported-phishing/menu-reports";
 import { GmailMessageMenu } from "./reported-phishing/message-menu";
 import { VisibleMessages } from "./reported-phishing/messages";
@@ -35,8 +37,8 @@ import { Poller } from "./reported-phishing/poller";
 import { GmailReportDialog } from "./reported-phishing/report-dialog";
 import { ReportedBinner } from "./reported-phishing/reported-binner";
 import { ReportedPhishing } from "./reported-phishing/reported-phishing";
-import type { Router } from "./reported-phishing/router";
 import { WarningBox } from "./reported-phishing/warning-box";
+import { WindowTimer } from "./window-timer";
 
 function directLinks(): Enhancement {
   const webOnly = new WebOnly();
@@ -56,14 +58,9 @@ function directLinks(): Enhancement {
   );
 }
 
-const visibility = {
-  visible: (element: Element) => element.checkVisibility(),
-};
+const visibility = new ElementVisibility();
 
-const timer = {
-  delay: (milliseconds: number) =>
-    new Promise<void>((resolve) => window.setTimeout(resolve, milliseconds)),
-};
+const timer = new WindowTimer(window);
 
 const presser = new MousePresser(
   (type) => new MouseEvent(type, { bubbles: true, cancelable: true }),
@@ -101,12 +98,7 @@ function answeredInvites(): Enhancement {
 }
 
 function reportedPhishing(): Enhancement {
-  const router: Router = {
-    current: () => window.location.hash,
-    go: (route) => {
-      window.location.hash = route;
-    },
-  };
+  const router = new HashRouter(window.location);
   const menu = new GmailMessageMenu(document, visibility);
   const navigation = {
     router,
