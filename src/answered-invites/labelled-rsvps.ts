@@ -1,8 +1,9 @@
 // An answer given with a button whose words say Yes, Maybe or No. A word on a
 // button means nothing outside an invitation, so the message must be one.
 import type { InviteCheck } from "./invite-check";
-import type { Labels } from "./rsvp-labels";
-import { VIA, type Rsvp, type RsvpWay } from "./rsvp-reader";
+import type { Labels } from "./labels";
+import { VIA, type Rsvp } from "./rsvp";
+import type { RsvpWay } from "./rsvp-way";
 
 export class LabelledRsvps implements RsvpWay {
   constructor(

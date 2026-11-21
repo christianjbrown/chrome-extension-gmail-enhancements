@@ -5,31 +5,10 @@ import { MESSAGE_ID } from "../gmail-message";
 import { BUTTON, MOUSE_EVENTS, ROLE_BUTTON, ROLE_MENU_ITEM } from "../dom";
 import type { Enhancement } from "../enhancement";
 import { BEFORE_GMAIL, type EventSource } from "../event-source";
-import {
-  DIALOG_CHOICE,
-  type DialogChoice,
-  type ReportDialog,
-} from "./report-dialog";
-import type { ReportPlace } from "./report-place";
+import type { Cleanup, Report } from "./report";
+import type { ReportControls } from "./report-controls";
+import { DIALOG_CHOICE, type DialogChoice } from "./report-dialog";
 import type { ConversationNavigation } from "./router";
-
-export interface Report {
-  // The address of the conversation the report was made from.
-  route: string;
-  // The id of the message reported.
-  messageId: string;
-}
-
-// The places Gmail offers "Report phishing", such as a message's own menu and
-// the warning box above a suspect message, and the dialog that confirms it.
-export interface ReportControls {
-  places: readonly ReportPlace[];
-  dialog: ReportDialog;
-}
-
-export interface Cleanup {
-  afterReport(report: Report): Promise<void>;
-}
 
 // Anything a person can press.
 const CONTROLS = `${ROLE_MENU_ITEM}, ${BUTTON}, ${ROLE_BUTTON}`;

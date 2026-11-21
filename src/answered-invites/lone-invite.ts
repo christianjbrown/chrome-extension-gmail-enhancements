@@ -3,10 +3,7 @@
 // the list instead, so anything else in reach means the email stays put.
 import { MESSAGE } from "../gmail-message";
 import type { Visibility } from "../visibility";
-
-export interface SafetyCheck {
-  onlyInvite(message: Element, view: Element): boolean;
-}
+import type { SafetyCheck } from "./safety-check";
 
 // Gmail lays a conversation out as a list with one item per message,
 // collapsed ones included, for screen readers.

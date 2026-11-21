@@ -1,17 +1,9 @@
 // Points one link straight at its target.
 import { HREF } from "../dom";
-import type { Unwrapper } from "./google-redirect";
+import type { Cleaner } from "./cleaner";
+import { SAFE_REDIRECT } from "./link-attributes";
+import type { Unwrapper } from "./unwrapper";
 import type { UrlPolicy } from "./url-policy";
-
-export interface Cleaner {
-  clean(link: Element): void;
-}
-
-// Gmail keeps the real address in href and its redirect here, and swaps the
-// redirect in on mousedown. Without it there is nothing to swap.
-export const SAFE_REDIRECT = "data-saferedirecturl";
-// Either changing means the link needs cleaning again.
-export const LINK_ATTRIBUTES = [HREF, SAFE_REDIRECT];
 
 export class LinkCleaner implements Cleaner {
   constructor(

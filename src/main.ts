@@ -1,42 +1,43 @@
 // The content script: builds every enhancement and starts it. Nothing else
 // touches the page's globals.
-import { ChosenAnswer } from "./answered-invites/answer-state";
 import { AnsweredInvites } from "./answered-invites/answered-invites";
+import { CalendarInvite } from "./answered-invites/calendar-invite";
 import { CalendarReplyLink } from "./answered-invites/calendar-reply";
-import { GmailConfirmation } from "./answered-invites/confirmation";
-import { NearestDelete } from "./answered-invites/delete-finder";
+import { ChosenAnswer } from "./answered-invites/chosen-answer";
 import { SmartEventCards } from "./answered-invites/event-card";
+import { GmailConfirmation } from "./answered-invites/gmail-confirmation";
 import { ConversationBinner } from "./answered-invites/invite-binner";
-import { CalendarInvite } from "./answered-invites/invite-check";
+import { InviteRsvps } from "./answered-invites/invite-rsvps";
 import { LabelledRsvps } from "./answered-invites/labelled-rsvps";
 import { LoneInvite } from "./answered-invites/lone-invite";
+import { NearestDelete } from "./answered-invites/nearest-delete";
 import { ReplyLinkRsvps } from "./answered-invites/reply-link-rsvps";
 import { RsvpLabels } from "./answered-invites/rsvp-labels";
-import { InviteRsvps } from "./answered-invites/rsvp-reader";
 import { CONTENT_CONFIG } from "./config";
 import { ClickGuard } from "./direct-links/click-guard";
 import { DirectLinks } from "./direct-links/direct-links";
-import {
-  GOOGLE_REDIRECT,
-  RedirectUnwrapper,
-} from "./direct-links/google-redirect";
-import { LINK_ATTRIBUTES, LinkCleaner } from "./direct-links/link-cleaner";
+import { GOOGLE_REDIRECT } from "./direct-links/google-redirect";
+import { LINK_ATTRIBUTES } from "./direct-links/link-attributes";
+import { LinkCleaner } from "./direct-links/link-cleaner";
 import { LinkScanner } from "./direct-links/link-scanner";
 import { NodeWatcher } from "./direct-links/node-watcher";
-import { WebOnly } from "./direct-links/url-policy";
+import { RedirectUnwrapper } from "./direct-links/redirect-unwrapper";
+import { WebOnly } from "./direct-links/web-only";
+import { ElementVisibility } from "./element-visibility";
 import type { Enhancement } from "./enhancement";
 import { ANSWER_WORDS } from "./gmail-labels";
-import { MousePresser } from "./presser";
+import { MousePresser } from "./mouse-presser";
+import { Poller } from "./poller";
+import { GmailReportDialog } from "./reported-phishing/gmail-report-dialog";
 import { GmailRoutes } from "./reported-phishing/gmail-routes";
+import { HashRouter } from "./reported-phishing/hash-router";
 import { MenuReports } from "./reported-phishing/menu-reports";
 import { GmailMessageMenu } from "./reported-phishing/message-menu";
 import { VisibleMessages } from "./reported-phishing/messages";
-import { Poller } from "./reported-phishing/poller";
-import { GmailReportDialog } from "./reported-phishing/report-dialog";
 import { ReportedBinner } from "./reported-phishing/reported-binner";
 import { ReportedPhishing } from "./reported-phishing/reported-phishing";
-import type { Router } from "./reported-phishing/router";
 import { WarningBox } from "./reported-phishing/warning-box";
+import { WindowTimer } from "./window-timer";
 
 function directLinks(): Enhancement {
   const webOnly = new WebOnly();
@@ -56,14 +57,9 @@ function directLinks(): Enhancement {
   );
 }
 
-const visibility = {
-  visible: (element: Element) => element.checkVisibility(),
-};
+const visibility = new ElementVisibility();
 
-const timer = {
-  delay: (milliseconds: number) =>
-    new Promise<void>((resolve) => window.setTimeout(resolve, milliseconds)),
-};
+const timer = new WindowTimer(window);
 
 const presser = new MousePresser(
   (type) => new MouseEvent(type, { bubbles: true, cancelable: true }),
@@ -87,9 +83,8 @@ function answeredInvites(): Enhancement {
       cards,
     ),
     new GmailConfirmation(
-      timer,
+      new Poller(timer, CONTENT_CONFIG.inviteChecks),
       new ChosenAnswer(labels, cards),
-      CONTENT_CONFIG.inviteChecks,
       CONTENT_CONFIG.inviteSettledChecks,
     ),
     new ConversationBinner(
@@ -101,12 +96,7 @@ function answeredInvites(): Enhancement {
 }
 
 function reportedPhishing(): Enhancement {
-  const router: Router = {
-    current: () => window.location.hash,
-    go: (route) => {
-      window.location.hash = route;
-    },
-  };
+  const router = new HashRouter(window.location);
   const menu = new GmailMessageMenu(document, visibility);
   const navigation = {
     router,

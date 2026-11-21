@@ -1,13 +1,10 @@
-// Reports every node Gmail adds to the page, and every element whose watched
-// attributes change, since it renders messages long after the page loads.
-export interface Watcher {
-  watch(changed: (node: Node) => void): void;
-}
+// Watches the page with a MutationObserver, since Gmail renders messages long
+// after the page loads.
+import type { ObserverFactory } from "./observer-factory";
+import type { Watcher } from "./watcher";
 
 // The kind of record a change to a watched attribute makes.
 const ATTRIBUTE_CHANGE: MutationRecordType = "attributes";
-
-export type ObserverFactory = (callback: MutationCallback) => MutationObserver;
 
 export class NodeWatcher implements Watcher {
   constructor(

@@ -1,9 +1,7 @@
-import {
-  GOOGLE_REDIRECT,
-  RedirectUnwrapper,
-} from "../../src/direct-links/google-redirect";
+import { GOOGLE_REDIRECT } from "../../src/direct-links/google-redirect";
+import { RedirectUnwrapper } from "../../src/direct-links/redirect-unwrapper";
 import { LinkCleaner } from "../../src/direct-links/link-cleaner";
-import { WebOnly } from "../../src/direct-links/url-policy";
+import { WebOnly } from "../../src/direct-links/web-only";
 
 const redirect =
   "https://www.google.com/url?q=https://example.com/&source=gmail";

@@ -1,4 +1,4 @@
-import { ChosenAnswer } from "../../src/answered-invites/answer-state";
+import { ChosenAnswer } from "../../src/answered-invites/chosen-answer";
 import { SmartEventCards } from "../../src/answered-invites/event-card";
 import { RsvpLabels } from "../../src/answered-invites/rsvp-labels";
 import { ANSWER_WORDS } from "../../src/gmail-labels";

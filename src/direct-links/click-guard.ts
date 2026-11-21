@@ -3,7 +3,7 @@
 import { LINK, MOUSE_EVENTS } from "../dom";
 import type { Enhancement } from "../enhancement";
 import { BEFORE_GMAIL, type EventSource } from "../event-source";
-import type { Cleaner } from "./link-cleaner";
+import type { Cleaner } from "./cleaner";
 
 // A middle click and a right click (for "Copy link address") count too.
 const EVENTS = [

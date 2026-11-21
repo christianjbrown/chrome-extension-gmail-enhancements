@@ -9,18 +9,10 @@
 // the report.
 import type { Presser } from "../presser";
 import { DELETE, REPORTED } from "../gmail-labels";
-import type { MenuButtons, MenuItems } from "./message-menu";
-import type { MessageLookup } from "./messages";
-import type { Waiter } from "./poller";
-import type { Cleanup, Report } from "./reported-phishing";
+import type { Conversation } from "./conversation";
+import type { Cleanup, Report } from "./report";
 import type { SpamNavigation } from "./router";
-
-// The parts of a conversation it reads.
-export interface Conversation {
-  messages: MessageLookup;
-  buttons: MenuButtons;
-  items: MenuItems;
-}
+import type { Waiter } from "../waiter";
 
 export class ReportedBinner implements Cleanup {
   constructor(

@@ -1,4 +1,4 @@
-import { WebOnly } from "../../src/direct-links/url-policy";
+import { WebOnly } from "../../src/direct-links/web-only";
 
 describe("WebOnly", () => {
   const policy = new WebOnly();

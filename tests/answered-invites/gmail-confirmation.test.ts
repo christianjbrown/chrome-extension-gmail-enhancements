@@ -1,5 +1,6 @@
-import { GmailConfirmation } from "../../src/answered-invites/confirmation";
-import type { Rsvp } from "../../src/answered-invites/rsvp-reader";
+import { GmailConfirmation } from "../../src/answered-invites/gmail-confirmation";
+import type { Rsvp } from "../../src/answered-invites/rsvp";
+import type { Waiter } from "../../src/waiter";
 
 function rsvp(via: Rsvp["via"]): Rsvp {
   const message = document.createElement("div");
@@ -13,21 +14,33 @@ function click(prevented: boolean): Event {
   return event;
 }
 
+// Looks as many times as it is allowed, straight away.
+function waiter(looks: number): Waiter & { looks: number } {
+  const fake = {
+    looks: 0,
+    until<T>(find: () => T | undefined): Promise<T | undefined> {
+      while (fake.looks < looks) {
+        fake.looks += 1;
+        const found = find();
+        if (found !== undefined) return Promise.resolve(found);
+      }
+      return Promise.resolve(undefined);
+    },
+  };
+  return fake;
+}
+
 describe("GmailConfirmation", () => {
-  const delay = vi.fn((_milliseconds: number) => Promise.resolve());
+  let looks: ReturnType<typeof waiter>;
 
   function confirmation(...states: boolean[]) {
     const answered = vi.fn(
       (_message: Element, _answer: string) => states.shift() ?? false,
     );
+    looks = waiter(30);
     return {
       answered,
-      confirmation: new GmailConfirmation(
-        { delay },
-        { answered },
-        { everyMs: 500, checks: 30 },
-        2,
-      ),
+      confirmation: new GmailConfirmation(looks, { answered }, 2),
     };
   }
 
@@ -45,7 +58,6 @@ describe("GmailConfirmation", () => {
     );
     expect(answered).toHaveBeenCalledTimes(5);
     expect(answered).toHaveBeenLastCalledWith(expect.any(Element), "maybe");
-    expect(delay).toHaveBeenCalledWith(500);
   });
 
   it("gives up after fifteen seconds when the reply never shows", async () => {
@@ -55,7 +67,7 @@ describe("GmailConfirmation", () => {
       false,
     );
     expect(answered).toHaveBeenCalledTimes(30);
-    expect(delay).toHaveBeenCalledTimes(30);
+    expect(looks.looks).toBe(30);
   });
 
   it("gives up when the message leaves the page", async () => {
