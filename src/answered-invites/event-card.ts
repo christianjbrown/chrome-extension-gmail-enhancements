@@ -3,7 +3,7 @@
 // "Based on this email" under it. It sits beside the message rather than in
 // it, in an element whose data-container-id names the message, such as
 // "0:msg-f:123:extractedsmartmailevent" for data-message-id="#msg-f:123".
-import { MESSAGE_ID } from "../gmail-message";
+import { GMAIL_ID, MESSAGE_ID, MESSAGE_ID_PREFIX } from "../gmail-message";
 
 export interface CardMessages {
   // The message a control on a card is about.
@@ -18,23 +18,19 @@ export interface MessageCards {
 
 const CONTAINER_ID = "data-container-id";
 const CARD = `[${CONTAINER_ID}]`;
-// Gmail's message ids, such as msg-f:123, and what separates the parts of a
-// container id.
-const ID = String.raw`msg-[a-z]+:\d+`;
+// What separates the parts of a container id.
 const SEPARATOR = ":";
-// data-message-id starts its id with this.
-const ID_PREFIX = "#";
 // The message id inside a container id, followed by what the card holds.
-const CONTAINED = new RegExp(`(?:^|${SEPARATOR})(${ID})${SEPARATOR}`);
+const CONTAINED = new RegExp(`(?:^|${SEPARATOR})(${GMAIL_ID})${SEPARATOR}`);
 // A message id as data-message-id carries it.
-const MESSAGE_ID_VALUE = new RegExp(`^${ID_PREFIX}?(${ID})$`);
+const MESSAGE_ID_VALUE = new RegExp(`^${MESSAGE_ID_PREFIX}?(${GMAIL_ID})$`);
 
 export class SmartEventCards implements CardMessages, MessageCards {
   message(control: Element): Element | undefined {
     const card = control.closest(CARD);
     const id = CONTAINED.exec(card?.getAttribute(CONTAINER_ID) ?? "")?.[1];
     return card && id
-      ? near(card, `[${MESSAGE_ID}="${ID_PREFIX}${id}"]`)
+      ? near(card, `[${MESSAGE_ID}="${MESSAGE_ID_PREFIX}${id}"]`)
       : undefined;
   }
 
