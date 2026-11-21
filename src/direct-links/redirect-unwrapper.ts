@@ -12,23 +12,34 @@ export class RedirectUnwrapper implements Unwrapper {
 
   unwrap(href: string): string | undefined {
     const redirect = this.policy.accept(href);
-    if (
-      redirect === undefined ||
-      !this.format.hosts.has(redirect.hostname) ||
-      redirect.pathname !== this.format.path
-    )
-      return undefined;
-    return this.target(redirect.searchParams);
+    return redirect === undefined ? undefined : this.fromRedirect(redirect);
+  }
+
+  private fromRedirect(url: URL): string | undefined {
+    return this.isRedirect(url) ? this.target(url.searchParams) : undefined;
+  }
+
+  private isRedirect(url: URL): boolean {
+    return (
+      this.format.hosts.has(url.hostname) && url.pathname === this.format.path
+    );
   }
 
   // URLSearchParams decodes the value, so an encoded & or # in the target
-  // comes back as part of the target rather than splitting it.
+  // comes back as part of the target rather than splitting it. The first
+  // parameter carrying an acceptable target wins.
   private target(parameters: URLSearchParams): string | undefined {
-    for (const name of this.format.targets) {
-      const value = parameters.get(name);
-      const target = value === null ? undefined : this.policy.accept(value);
-      if (target !== undefined) return target.href;
-    }
-    return undefined;
+    return this.format.targets.reduce<string | undefined>(
+      (found, name) => found ?? this.targetIn(parameters.get(name)),
+      undefined,
+    );
+  }
+
+  private targetIn(value: string | null): string | undefined {
+    return value === null ? undefined : this.accepted(value);
+  }
+
+  private accepted(value: string): string | undefined {
+    return this.policy.accept(value)?.href;
   }
 }

@@ -8,6 +8,10 @@ const WEB_PROTOCOLS = new Set(["http:", "https:"]);
 export class WebOnly implements UrlPolicy {
   accept(value: string): URL | undefined {
     const url = URL.parse(value);
-    return url !== null && WEB_PROTOCOLS.has(url.protocol) ? url : undefined;
+    return url === null ? undefined : this.web(url);
+  }
+
+  private web(url: URL): URL | undefined {
+    return WEB_PROTOCOLS.has(url.protocol) ? url : undefined;
   }
 }
