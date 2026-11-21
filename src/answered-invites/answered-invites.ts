@@ -3,7 +3,7 @@
 // the email for 30 days.
 import { MOUSE_EVENTS } from "../dom";
 import type { Enhancement } from "../enhancement";
-import type { EventSource } from "../event-source";
+import { BEFORE_GMAIL, type EventSource } from "../event-source";
 import type { Confirmation } from "./confirmation";
 import type { Binner } from "./invite-binner";
 import type { Rsvp, RsvpReader } from "./rsvp-reader";
@@ -27,7 +27,7 @@ export class AnsweredInvites implements Enhancement {
       (event) => {
         this.answered(event);
       },
-      { capture: true },
+      BEFORE_GMAIL,
     );
   }
 

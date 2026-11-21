@@ -4,7 +4,7 @@
 import { MESSAGE_ID } from "../gmail-message";
 import { BUTTON, MOUSE_EVENTS, ROLE_BUTTON, ROLE_MENU_ITEM } from "../dom";
 import type { Enhancement } from "../enhancement";
-import type { EventSource } from "../event-source";
+import { BEFORE_GMAIL, type EventSource } from "../event-source";
 import {
   DIALOG_CHOICE,
   type DialogChoice,
@@ -51,7 +51,7 @@ export class ReportedPhishing implements Enhancement {
       (event) => {
         this.clicked(event.target);
       },
-      { capture: true },
+      BEFORE_GMAIL,
     );
   }
 

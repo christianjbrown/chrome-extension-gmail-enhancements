@@ -2,7 +2,7 @@
 // handlers run, in case Gmail rewrote it after the watcher last saw it.
 import { LINK, MOUSE_EVENTS } from "../dom";
 import type { Enhancement } from "../enhancement";
-import type { EventSource } from "../event-source";
+import { BEFORE_GMAIL, type EventSource } from "../event-source";
 import type { Cleaner } from "./link-cleaner";
 
 // A middle click and a right click (for "Copy link address") count too.
@@ -26,7 +26,7 @@ export class ClickGuard implements Enhancement {
         (event) => {
           this.guard(event);
         },
-        { capture: true },
+        BEFORE_GMAIL,
       );
   }
 
