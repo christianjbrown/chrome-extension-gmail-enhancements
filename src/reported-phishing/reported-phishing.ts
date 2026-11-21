@@ -1,11 +1,12 @@
 // Report an email as phishing and it goes to Bin as well. Gmail only moves it
 // to Spam, or leaves it there, for another 30 days, when the point of
 // reporting was to be rid of it.
+import { MESSAGE_ID } from "../answered-invites/gmail-message";
+import { BUTTON, MOUSE_EVENTS, ROLE_BUTTON, ROLE_MENU_ITEM } from "../dom";
 import type { Enhancement } from "../enhancement";
 import type { EventSource } from "../event-source";
-import { REPORT } from "./labels";
+import { REPORT } from "../gmail-labels";
 import type { MessageMenu } from "./message-menu";
-import { MESSAGE_ID } from "./messages";
 import type { Navigation } from "./router";
 import type { ReportButton } from "./warning-box";
 
@@ -28,7 +29,7 @@ export interface Cleanup {
 }
 
 // Anything a person can press.
-const CONTROLS = "[role='menuitem'], button, [role='button']";
+const CONTROLS = `${ROLE_MENU_ITEM}, ${BUTTON}, ${ROLE_BUTTON}`;
 // The buttons on Gmail's "Report Phishing" dialog say which they are.
 const DIALOG_ACTION = "[role='alertdialog'] [data-mdc-dialog-action]";
 const ACTION = "data-mdc-dialog-action";
@@ -49,7 +50,7 @@ export class ReportedPhishing implements Enhancement {
 
   start(): void {
     this.source.addEventListener(
-      "click",
+      MOUSE_EVENTS.click,
       (event) => {
         this.clicked(event.target);
       },

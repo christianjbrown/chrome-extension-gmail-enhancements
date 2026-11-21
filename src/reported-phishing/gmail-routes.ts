@@ -11,10 +11,11 @@ export interface RoutePolicy {
 }
 
 const SEPARATOR = "/";
-const SPAM = "#spam/";
+const SPAM = `#spam${SEPARATOR}`;
 // Gmail's conversation ids are long runs of letters and digits, which no
 // list, page or label short enough to type looks like.
-const CONVERSATION_ID = /^[A-Za-z0-9]{16,}$/;
+const MIN_ID_LENGTH = 16;
+const CONVERSATION_ID = new RegExp(`^[A-Za-z0-9]{${String(MIN_ID_LENGTH)},}$`);
 
 export class GmailRoutes implements RoutePolicy {
   conversation(route: string): boolean {

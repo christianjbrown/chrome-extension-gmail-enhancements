@@ -5,6 +5,8 @@
 // English Gmail's.
 import { MESSAGE } from "../answered-invites/gmail-message";
 import type { Visibility } from "../answered-invites/visibility";
+import { ARIA_LABEL, ROLE_MENU_ITEM } from "../dom";
+import { MORE_MESSAGE_OPTIONS } from "../gmail-labels";
 
 export interface MessageMenu {
   // The message whose menu a control opens, when it is that button.
@@ -19,9 +21,8 @@ export interface MessageMenu {
   sibling(item: Element, label: string): Element | undefined;
 }
 
-const BUTTON = "[aria-label='More message options']";
+const BUTTON = `[${ARIA_LABEL}='${MORE_MESSAGE_OPTIONS}']`;
 const MENU = "[role='menu']";
-const ITEM = "[role='menuitem']";
 
 export class GmailMessageMenu implements MessageMenu {
   constructor(
@@ -40,7 +41,9 @@ export class GmailMessageMenu implements MessageMenu {
   }
 
   is(control: Element, label: string): boolean {
-    return control.matches(ITEM) && control.textContent.trim() === label;
+    return (
+      control.matches(ROLE_MENU_ITEM) && control.textContent.trim() === label
+    );
   }
 
   item(label: string): Element | undefined {
@@ -53,7 +56,7 @@ export class GmailMessageMenu implements MessageMenu {
   }
 
   private labelled(within: ParentNode, label: string): Element | undefined {
-    return [...within.querySelectorAll(ITEM)].find(
+    return [...within.querySelectorAll(ROLE_MENU_ITEM)].find(
       (item) => this.is(item, label) && this.visibility.visible(item),
     );
   }

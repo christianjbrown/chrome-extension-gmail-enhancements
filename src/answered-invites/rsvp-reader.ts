@@ -1,6 +1,7 @@
 // Works out whether a click answered an invitation, and how.
+import { ARIA_LABEL, BUTTON, HREF, LINK, ROLE_BUTTON } from "../dom";
 import type { Answer } from "./answer";
-import type { ReplyLinks } from "./calendar-reply";
+import { RESPOND, type ReplyLinks } from "./calendar-reply";
 import type { EventCards } from "./event-card";
 import { MESSAGE } from "./gmail-message";
 import type { Labels } from "./rsvp-labels";
@@ -19,16 +20,16 @@ export interface RsvpReader {
 
 // Anything a person can press: a link, a real button, or one of Gmail's
 // role="button" elements, which is what its invite card answers are.
-const CONTROLS = "a[href], button, [role='button']";
+const CONTROLS = `${LINK}[${HREF}], ${BUTTON}, ${ROLE_BUTTON}`;
 // A toggle on Gmail's event card is its "Correct?" thumbs up or down, labelled
 // Yes and No, asking whether it read the email right. Never an answer.
 const TOGGLE = "[aria-pressed]";
 // Reply links, found cheaply before each is read properly.
-const REPLY_LINKS = "a[href*='RESPOND']";
+const REPLY_LINKS = `${LINK}[${HREF}*='${RESPOND}']`;
 // An .ics attachment, for invitations from Outlook and other calendars that
 // carry no Calendar links. Gmail's attachment chip has a download_url that
 // starts with the file's type, and an aria-label that names the file.
-const ICS = "[download_url^='text/calendar:'], [aria-label*='.ics']";
+const ICS = `[download_url^='text/calendar:'], [${ARIA_LABEL}*='.ics']`;
 
 export class InviteRsvps implements RsvpReader {
   constructor(
@@ -51,7 +52,7 @@ export class InviteRsvps implements RsvpReader {
   }
 
   private reply(control: Element, message: Element): Rsvp | undefined {
-    const href = control.getAttribute("href");
+    const href = control.getAttribute(HREF);
     const linked = href === null ? undefined : this.links.answer(href);
     if (linked !== undefined) return { answer: linked, message, via: "link" };
     // A word on a button means nothing outside an invitation.

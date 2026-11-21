@@ -14,7 +14,7 @@ import { InviteRsvps } from "./answered-invites/rsvp-reader";
 import { ClickGuard } from "./direct-links/click-guard";
 import { DirectLinks } from "./direct-links/direct-links";
 import { GoogleRedirect } from "./direct-links/google-redirect";
-import { LinkCleaner } from "./direct-links/link-cleaner";
+import { LINK_ATTRIBUTES, LinkCleaner } from "./direct-links/link-cleaner";
 import { LinkScanner } from "./direct-links/link-scanner";
 import { NodeWatcher } from "./direct-links/node-watcher";
 import { WebOnly } from "./direct-links/url-policy";
@@ -34,10 +34,11 @@ function directLinks(): Enhancement {
   return new DirectLinks(
     document,
     new LinkScanner(cleaner),
-    new NodeWatcher((callback) => new MutationObserver(callback), document, [
-      "href",
-      "data-saferedirecturl",
-    ]),
+    new NodeWatcher(
+      (callback) => new MutationObserver(callback),
+      document,
+      LINK_ATTRIBUTES,
+    ),
     new ClickGuard(window, cleaner),
   );
 }

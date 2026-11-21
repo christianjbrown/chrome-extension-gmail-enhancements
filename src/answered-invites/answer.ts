@@ -1,2 +1,4 @@
 // The three replies an invitation takes.
-export type Answer = "yes" | "maybe" | "no";
+export const ANSWER = { yes: "yes", maybe: "maybe", no: "no" } as const;
+
+export type Answer = (typeof ANSWER)[keyof typeof ANSWER];

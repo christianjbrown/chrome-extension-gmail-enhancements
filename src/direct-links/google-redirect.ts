@@ -1,5 +1,6 @@
 // Unwraps https://www.google.com/url?q=<target>, the redirector Gmail sends
 // email links through, back to the target.
+import { GOOGLE, WWW_GOOGLE } from "../google-hosts";
 import type { UrlPolicy } from "./url-policy";
 
 export interface Unwrapper {
@@ -7,7 +8,10 @@ export interface Unwrapper {
   unwrap(href: string): string | undefined;
 }
 
-const HOSTS = new Set(["google.com", "www.google.com"]);
+const HOSTS = new Set([GOOGLE, WWW_GOOGLE]);
+const PATH = "/url";
+// Enough of a redirect's address to spot one with a selector.
+export const REDIRECT_MARK = GOOGLE + PATH;
 const TARGET_PARAMETERS = ["q", "url"];
 
 export class GoogleRedirect implements Unwrapper {
@@ -18,7 +22,7 @@ export class GoogleRedirect implements Unwrapper {
     if (
       redirect === undefined ||
       !HOSTS.has(redirect.hostname) ||
-      redirect.pathname !== "/url"
+      redirect.pathname !== PATH
     )
       return undefined;
     return this.target(redirect.searchParams);

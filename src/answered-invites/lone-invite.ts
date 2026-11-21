@@ -14,6 +14,8 @@ const LIST = "[role='list']";
 const ITEM = "[role='listitem']";
 // A checked row in the conversation list.
 const CHECKED = "[role='checkbox'][aria-checked='true']";
+// The invitation on its own.
+const ALONE = 1;
 
 export class LoneInvite implements SafetyCheck {
   constructor(private readonly visibility: Visibility) {}
@@ -22,8 +24,8 @@ export class LoneInvite implements SafetyCheck {
   // enough to stop: counting too many only means an email stays put.
   onlyInvite(message: Element, view: Element): boolean {
     return (
-      this.messages(view) === 1 &&
-      this.items(message) <= 1 &&
+      this.messages(view) === ALONE &&
+      this.items(message) <= ALONE &&
       !this.visibleIn(view, CHECKED).length
     );
   }

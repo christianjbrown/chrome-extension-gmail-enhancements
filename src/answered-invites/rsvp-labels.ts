@@ -4,6 +4,7 @@
 // aria-label a screen reader announces, or the text when there is none. These
 // are English Gmail's words. In another language nothing matches, and only
 // Calendar's own reply links are recognised.
+import { ARIA_LABEL } from "../dom";
 import type { Answer } from "./answer";
 
 export interface Labels {
@@ -16,7 +17,7 @@ const WORDS = /^(yes|maybe|no)\b/i;
 
 export class RsvpLabels implements Labels {
   answer(control: Element): Answer | undefined {
-    const label = control.getAttribute("aria-label") ?? control.textContent;
+    const label = control.getAttribute(ARIA_LABEL) ?? control.textContent;
     const word = WORDS.exec(label.trim())?.[1]?.toLowerCase();
     return word as Answer | undefined;
   }

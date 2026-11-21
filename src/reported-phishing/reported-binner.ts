@@ -8,7 +8,7 @@
 // once that menu says "Report as not phishing", which is Gmail showing it has
 // the report.
 import type { Presser } from "../answered-invites/presser";
-import { DELETE, REPORTED } from "./labels";
+import { DELETE, REPORTED } from "../gmail-labels";
 import type { MessageMenu } from "./message-menu";
 import type { MessageLookup } from "./messages";
 import type { Waiter } from "./poller";
