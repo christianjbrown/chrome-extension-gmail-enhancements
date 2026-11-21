@@ -20,11 +20,15 @@ export class LoneInvite implements SafetyCheck {
   // Messages are counted two ways, and either finding more than one is
   // enough to stop: counting too many only means an email stays put.
   onlyInvite(message: Element, view: Element): boolean {
-    return (
-      this.messages(view) === ALONE &&
-      this.items(message) <= ALONE &&
-      !this.visibleIn(view, CHECKED).length
-    );
+    return this.oneMessage(message, view) && this.nothingChecked(view);
+  }
+
+  private oneMessage(message: Element, view: Element): boolean {
+    return this.messages(view) === ALONE && this.items(message) <= ALONE;
+  }
+
+  private nothingChecked(view: Element): boolean {
+    return !this.visibleIn(view, CHECKED).length;
   }
 
   // Messages inside messages are quoted or forwarded mail, not their own.

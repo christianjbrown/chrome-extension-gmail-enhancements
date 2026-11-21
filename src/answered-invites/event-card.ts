@@ -15,22 +15,33 @@ const SEPARATOR = ":";
 const CONTAINED = new RegExp(`(?:^|${SEPARATOR})(${GMAIL_ID})${SEPARATOR}`);
 // A message id as data-message-id carries it.
 const MESSAGE_ID_VALUE = new RegExp(`^${MESSAGE_ID_PREFIX}?(${GMAIL_ID})$`);
+// A missing attribute reads as an empty one, which holds no id.
+const MISSING = "";
+
+const attributeOf = (element: Element, name: string): string =>
+  element.getAttribute(name) ?? MISSING;
+
+// The id a pattern found, when it found one.
+const idIn = (pattern: RegExp, value: string): string | undefined =>
+  pattern.exec(value)?.[1];
 
 export class SmartEventCards implements CardMessages, MessageCards {
   message(control: Element): Element | undefined {
     const card = control.closest(CARD);
-    const id = CONTAINED.exec(card?.getAttribute(CONTAINER_ID) ?? "")?.[1];
-    return card && id
-      ? near(card, `[${MESSAGE_ID}="${MESSAGE_ID_PREFIX}${id}"]`)
-      : undefined;
+    return card ? this.cardMessage(card) : undefined;
   }
 
   card(message: Element): Element | undefined {
-    const id = MESSAGE_ID_VALUE.exec(
-      message.getAttribute(MESSAGE_ID) ?? "",
-    )?.[1];
+    const id = idIn(MESSAGE_ID_VALUE, attributeOf(message, MESSAGE_ID));
     return id
       ? near(message, `[${CONTAINER_ID}*="${id}${SEPARATOR}"]`)
+      : undefined;
+  }
+
+  private cardMessage(card: Element): Element | undefined {
+    const id = idIn(CONTAINED, attributeOf(card, CONTAINER_ID));
+    return id
+      ? near(card, `[${MESSAGE_ID}="${MESSAGE_ID_PREFIX}${id}"]`)
       : undefined;
   }
 }
@@ -38,9 +49,10 @@ export class SmartEventCards implements CardMessages, MessageCards {
 // Gmail keeps the views you are not looking at in the page, so the match
 // that counts is the one nearest: the first found walking out from here.
 function near(from: Element, selector: string): Element | undefined {
-  for (let view = from.parentElement; view; view = view.parentElement) {
-    const match = view.querySelector(selector);
-    if (match) return match;
-  }
-  return undefined;
+  const view = from.parentElement;
+  return view ? nearIn(view, selector) : undefined;
+}
+
+function nearIn(view: Element, selector: string): Element | undefined {
+  return view.querySelector(selector) ?? near(view, selector);
 }

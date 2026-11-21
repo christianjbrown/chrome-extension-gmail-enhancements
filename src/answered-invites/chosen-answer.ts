@@ -34,7 +34,11 @@ export class ChosenAnswer implements AnswerState {
     selector: string,
     answer: Answer,
   ): boolean {
-    return [...(within?.querySelectorAll(selector) ?? [])].some(
+    return within !== undefined && this.showsIn(within, selector, answer);
+  }
+
+  private showsIn(within: Element, selector: string, answer: Answer): boolean {
+    return [...within.querySelectorAll(selector)].some(
       (control) => this.labels.answer(control) === answer,
     );
   }

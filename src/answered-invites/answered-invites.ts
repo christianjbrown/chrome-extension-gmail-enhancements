@@ -37,8 +37,11 @@ export class AnsweredInvites implements Enhancement {
     if (rsvp === undefined) return;
     this.latest.set(rsvp.message, rsvp);
     void this.confirmation.confirmed(rsvp, click).then((confirmed) => {
-      if (confirmed && this.latest.get(rsvp.message) === rsvp)
-        this.binner.bin(rsvp.message);
+      if (confirmed) this.binIfLatest(rsvp);
     });
+  }
+
+  private binIfLatest(rsvp: Rsvp): void {
+    if (this.latest.get(rsvp.message) === rsvp) this.binner.bin(rsvp.message);
   }
 }
