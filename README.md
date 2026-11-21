@@ -108,7 +108,7 @@ How it fits together, all in `src`:
 - **`main.ts`** builds every enhancement and starts it. It's the only file that touches `document`, `window` or `MutationObserver`.
 - **`enhancement.ts`** is the one-method interface every enhancement implements.
 - **`config.ts`** holds the timings and limits, and only `main.ts` reads it.
-- **`dom.ts`**, **`gmail-labels.ts`**, **`gmail-message.ts`** and **`google-hosts.ts`** name the attributes, English words, message selector and hosts more than one part needs. **`mouse-presser.ts`**, **`poller.ts`**, **`window-timer.ts`** and **`element-visibility.ts`** are the small helpers both bins share.
+- **`dom.ts`**, **`gmail-labels.ts`**, **`gmail-message.ts`** and **`google-hosts.ts`** name the attributes, English words, message selector and hosts more than one part needs. The entry point hands each part its words (shaped by **`control-words.ts`**), and **`node-guards.ts`** checks what a node really is before anything reads it. **`mouse-presser.ts`**, **`poller.ts`**, **`window-timer.ts`** and **`element-visibility.ts`** are the small helpers both bins share.
 - **`direct-links/`** is the first enhancement:
   - **`direct-links.ts`** starts the click guard, cleans what's on the page, then watches for more.
   - **`node-watcher.ts`** reports nodes Gmail adds and links whose `href` changes.
