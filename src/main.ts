@@ -37,6 +37,7 @@ import { HashRouter } from "./reported-phishing/hash-router";
 import { MenuReports } from "./reported-phishing/menu-reports";
 import { GmailMessageMenu } from "./reported-phishing/message-menu";
 import { VisibleMessages } from "./reported-phishing/messages";
+import { ReportPresses } from "./reported-phishing/report-presses";
 import { ReportedBinner } from "./reported-phishing/reported-binner";
 import { ReportedPhishing } from "./reported-phishing/reported-phishing";
 import { WarningBox } from "./reported-phishing/warning-box";
@@ -111,11 +112,11 @@ function reportedPhishing(): Enhancement {
   };
   return new ReportedPhishing(
     window,
-    new ConversationReports(navigation),
-    {
+    new ReportPresses({
       places: [new MenuReports(menu, menu), new WarningBox()],
       dialog: new GmailReportDialog(),
-    },
+    }),
+    new ConversationReports(navigation),
     new ReportedBinner(
       navigation,
       new Poller(timer, CONTENT_CONFIG.phishingChecks),

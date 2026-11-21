@@ -1,6 +1,8 @@
+import { DIALOG_CHOICE } from "../../src/reported-phishing/report-dialog";
 import { MenuReports } from "../../src/reported-phishing/menu-reports";
 import { GmailMessageMenu } from "../../src/reported-phishing/message-menu";
 import { GmailReportDialog } from "../../src/reported-phishing/gmail-report-dialog";
+import { ReportPresses } from "../../src/reported-phishing/report-presses";
 import { ReportedPhishing } from "../../src/reported-phishing/reported-phishing";
 import { GmailRoutes } from "../../src/reported-phishing/gmail-routes";
 import { ConversationReports } from "../../src/reported-phishing/conversation-reports";
@@ -37,8 +39,8 @@ describe("ReportedPhishing", () => {
     const router = { current: vi.fn(() => route) };
     new ReportedPhishing(
       document,
+      new ReportPresses(controls()),
       new ConversationReports({ router, routes: new GmailRoutes(16) }),
-      controls(),
       { afterReport },
     ).start();
     const click = (...ids: string[]) => {
@@ -121,8 +123,8 @@ describe("ReportedPhishing", () => {
     const listeners: ((event: Event) => void)[] = [];
     new ReportedPhishing(
       { addEventListener: (_type, listener) => listeners.push(listener) },
+      new ReportPresses(controls()),
       { report: vi.fn() },
-      controls(),
       { afterReport },
     ).start();
 
@@ -136,8 +138,8 @@ describe("ReportedPhishing", () => {
 
     new ReportedPhishing(
       { addEventListener },
+      new ReportPresses(controls()),
       { report: vi.fn() },
-      controls(),
       { afterReport: vi.fn() },
     ).start();
 
@@ -146,5 +148,41 @@ describe("ReportedPhishing", () => {
       expect.any(Function),
       { capture: true },
     );
+  });
+});
+
+describe("ReportedPhishing with its collaborators faked", () => {
+  const report = { route: "#inbox/abc", messageId: "#msg-f:1" };
+
+  function setup(counts: (message: Element) => boolean) {
+    const afterReport = vi.fn(() => Promise.resolve());
+    const phishing = new ReportedPhishing(
+      { addEventListener: vi.fn() },
+      { sort: vi.fn() },
+      { report: (message) => (counts(message) ? report : undefined) },
+      { afterReport },
+    );
+    return { phishing, afterReport };
+  }
+
+  it("forgets a pending report when a later press makes none that counts", () => {
+    const first = document.createElement("div");
+    const { phishing, afterReport } = setup((message) => message === first);
+
+    phishing.reported(first);
+    phishing.reported(document.createElement("div"));
+    phishing.answered(DIALOG_CHOICE.confirm);
+
+    expect(afterReport).not.toHaveBeenCalled();
+  });
+
+  it("cleans up only once per confirmed report", () => {
+    const { phishing, afterReport } = setup(() => true);
+
+    phishing.reported(document.createElement("div"));
+    phishing.answered(DIALOG_CHOICE.confirm);
+    phishing.answered(DIALOG_CHOICE.confirm);
+
+    expect(afterReport).toHaveBeenCalledExactlyOnceWith(report);
   });
 });
