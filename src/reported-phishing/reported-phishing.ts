@@ -1,26 +1,22 @@
 // Report an email as phishing and it goes to Bin as well. Gmail only moves it
 // to Spam, or leaves it there, for another 30 days, when the point of
 // reporting was to be rid of it.
-import { MESSAGE_ID } from "../gmail-message";
-import { BUTTON, MOUSE_EVENTS, ROLE_BUTTON, ROLE_MENU_ITEM } from "../dom";
+import { MOUSE_EVENTS } from "../dom";
 import type { Enhancement } from "../enhancement";
 import { BEFORE_GMAIL, type EventSource } from "../event-source";
+import type { PressHandler, PressSorter } from "./press-sorter";
 import type { Cleanup, Report } from "./report";
-import type { ReportControls } from "./report-controls";
 import { DIALOG_CHOICE, type DialogChoice } from "./report-dialog";
-import type { ConversationNavigation } from "./router";
+import type { ReportRule } from "./report-rule";
 
-// Anything a person can press.
-const CONTROLS = `${ROLE_MENU_ITEM}, ${BUTTON}, ${ROLE_BUTTON}`;
-
-export class ReportedPhishing implements Enhancement {
+export class ReportedPhishing implements Enhancement, PressHandler {
   // The report waiting on the dialog Gmail asks it in.
   private pending: Report | undefined;
 
   constructor(
     private readonly source: EventSource,
-    private readonly navigation: ConversationNavigation,
-    private readonly controls: ReportControls,
+    private readonly presses: PressSorter,
+    private readonly rule: ReportRule,
     private readonly cleanup: Cleanup,
   ) {}
 
@@ -28,38 +24,17 @@ export class ReportedPhishing implements Enhancement {
     this.source.addEventListener(
       MOUSE_EVENTS.click,
       (event) => {
-        this.clicked(event.target);
+        this.presses.sort(event.target, this);
       },
       BEFORE_GMAIL,
     );
   }
 
-  private clicked(target: EventTarget | null): void {
-    const control = (target as Partial<Element> | null)?.closest?.(CONTROLS);
-    if (!control) return;
-    const choice = this.controls.dialog.choice(control);
-    if (choice === undefined) this.chose(control);
-    else this.answered(choice);
+  reported(message: Element): void {
+    this.pending = this.rule.report(message);
   }
 
-  // Every place sees every press, since some keep track of what was opened.
-  private chose(control: Element): void {
-    const [message] = this.controls.places.flatMap(
-      (place) => place.reported(control) ?? [],
-    );
-    if (message) this.pending = this.report(message);
-  }
-
-  // Only a report made from an open conversation counts.
-  private report(message: Element): Report | undefined {
-    const route = this.navigation.router.current();
-    const messageId = message.getAttribute(MESSAGE_ID);
-    if (!messageId || !this.navigation.routes.conversation(route))
-      return undefined;
-    return { route, messageId };
-  }
-
-  private answered(choice: DialogChoice): void {
+  answered(choice: DialogChoice): void {
     const report = this.pending;
     this.pending = undefined;
     if (report && choice === DIALOG_CHOICE.confirm)
