@@ -108,29 +108,30 @@ How it fits together, all in `src`:
 - **`main.ts`** builds every enhancement and starts it. It's the only file that touches `document`, `window` or `MutationObserver`.
 - **`enhancement.ts`** is the one-method interface every enhancement implements.
 - **`config.ts`** holds the timings and limits, and only `main.ts` reads it.
-- **`dom.ts`**, **`gmail-labels.ts`**, **`gmail-message.ts`** and **`google-hosts.ts`** name the attributes, English words, message selector and hosts more than one part needs. **`presser.ts`**, **`timer.ts`** and **`visibility.ts`** are the small helpers both bins share.
+- **`dom.ts`**, **`gmail-labels.ts`**, **`gmail-message.ts`** and **`google-hosts.ts`** name the attributes, English words, message selector and hosts more than one part needs. **`mouse-presser.ts`**, **`poller.ts`**, **`window-timer.ts`** and **`element-visibility.ts`** are the small helpers both bins share.
 - **`direct-links/`** is the first enhancement:
   - **`direct-links.ts`** starts the click guard, cleans what's on the page, then watches for more.
   - **`node-watcher.ts`** reports nodes Gmail adds and links whose `href` changes.
   - **`link-scanner.ts`** finds the links worth cleaning inside a node.
   - **`link-cleaner.ts`** strips `data-saferedirecturl` and unwraps a wrapped `href`.
-  - **`google-redirect.ts`** turns a `google.com/url?q=` address back into its target.
-  - **`url-policy.ts`** says which targets are allowed: `http:` and `https:` only.
+  - **`redirect-unwrapper.ts`** turns a `google.com/url?q=` address back into its target, using the format in **`google-redirect.ts`**.
+  - **`web-only.ts`** says which targets are allowed: `http:` and `https:` only.
   - **`click-guard.ts`** cleans a link again the instant it's pressed.
 - **`answered-invites/`** bins invites you reply to:
   - **`answered-invites.ts`** hears every click and bins the invite once a reply is confirmed.
-  - **`rsvp-reader.ts`** works out whether a click answered an invite, and with what, by trying **`reply-link-rsvps.ts`** and **`labelled-rsvps.ts`** in turn. **`invite-check.ts`** says whether a message is an invite at all.
-  - **`calendar-reply.ts`** reads the answer a Google Calendar `action=RESPOND` link sends.
+  - **`invite-rsvps.ts`** works out whether a click answered an invite, and with what, by trying **`reply-link-rsvps.ts`** and **`labelled-rsvps.ts`** in turn. **`calendar-invite.ts`** says whether a message is an invite at all.
+  - **`calendar-reply.ts`** reads the answer a Google Calendar `action=RESPOND` link sends, going by **`calendar-link.ts`**.
   - **`rsvp-labels.ts`** reads the answer off a Yes, Maybe or No button.
-  - **`confirmation.ts`** and **`answer-state.ts`** wait until Gmail shows the reply as your answer.
-  - **`invite-binner.ts`** presses Delete, using **`delete-finder.ts`** to find the right one, **`lone-invite.ts`** to check the invite is all it would bin, and the shared presser to press it.
+  - **`gmail-confirmation.ts`** and **`chosen-answer.ts`** wait until Gmail shows the reply as your answer.
+  - **`invite-binner.ts`** presses Delete, using **`nearest-delete.ts`** to find the right one, **`lone-invite.ts`** to check the invite is all it would bin, and the shared presser to press it.
 
 - **`reported-phishing/`** bins phishing you report:
-  - **`reported-phishing.ts`** hears the "Report phishing" click and the dialog's confirm, and only counts reports made from an open conversation. **`menu-reports.ts`** knows which message's menu was opened, **`warning-box.ts`** knows which message the warning box's own "Report phishing" button belongs to, and **`report-dialog.ts`** reads the dialog's answer.
+  - **`reported-phishing.ts`** hears the "Report phishing" click and the dialog's confirm, and only counts reports made from an open conversation. **`menu-reports.ts`** knows which message's menu was opened, **`warning-box.ts`** knows which message the warning box's own "Report phishing" button belongs to, and **`gmail-report-dialog.ts`** reads the dialog's answer.
   - **`gmail-routes.ts`** says which addresses are an open conversation, which list Gmail goes back to, and where the conversation lives in Spam.
-  - **`reported-binner.ts`** reopens the conversation in Spam, checks the menu says "Report as not phishing", then presses its Delete, using **`messages.ts`** to find the message again, **`message-menu.ts`** to read the menu, and **`poller.ts`** to wait for each step.
+  - **`reported-binner.ts`** reopens the conversation in Spam, checks the menu says "Report as not phishing", then presses its Delete, using **`messages.ts`** to find the message again, **`message-menu.ts`** to read the menu, and the shared poller to wait for each step.
+  - **`hash-router.ts`** reads and sets where Gmail is.
 
-Every class gets its collaborators through its constructor, behind an interface, so each one is tested on its own with fakes. Adding the next enhancement means a new class and one more line in the list in `main.ts`. 🧩
+Every class gets its collaborators through its constructor, behind an interface, so each one is tested on its own with fakes. The interfaces live in files of their own, named after them (`timer.ts`, `unwrapper.ts`, `report-place.ts` and friends), with no code in them. Adding the next enhancement means a new class and one more line in the list in `main.ts`. 🧩
 
 ## Licence 📄
 
