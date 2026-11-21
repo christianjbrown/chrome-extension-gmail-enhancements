@@ -11,8 +11,12 @@ export class ConversationReports implements ReportRule {
   report(message: Element): Report | undefined {
     const route = this.navigation.router.current();
     const messageId = message.getAttribute(MESSAGE_ID);
-    if (!messageId || !this.navigation.routes.conversation(route))
-      return undefined;
-    return { route, messageId };
+    return messageId ? this.reportIn(route, messageId) : undefined;
+  }
+
+  private reportIn(route: string, messageId: string): Report | undefined {
+    return this.navigation.routes.conversation(route)
+      ? { route, messageId }
+      : undefined;
   }
 }

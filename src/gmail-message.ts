@@ -5,6 +5,9 @@
 export const MESSAGE_ID = "data-message-id";
 const LEGACY_MESSAGE_ID = "data-legacy-message-id";
 export const MESSAGE = `[${MESSAGE_ID}], [${LEGACY_MESSAGE_ID}]`;
+// The message a control sits in, when it sits in one.
+export const messageOf = (control: Element): Element | undefined =>
+  control.closest(MESSAGE) ?? undefined;
 // Only the messages that carry the current id.
 export const WITH_MESSAGE_ID = `[${MESSAGE_ID}]`;
 // Gmail's message ids, such as msg-f:123, as a pattern.

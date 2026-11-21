@@ -3,7 +3,7 @@
 // the menu itself elsewhere on the page, so the open one is the one on screen.
 // Its items carry no labels of their own beyond their words, which are
 // English Gmail's.
-import { MESSAGE } from "../gmail-message";
+import { messageOf } from "../gmail-message";
 import type { Visibility } from "../visibility";
 import { ARIA_LABEL, ROLE_MENU_ITEM } from "../dom";
 import { MORE_MESSAGE_OPTIONS } from "../gmail-labels";
@@ -26,9 +26,7 @@ export class GmailMessageMenu
   ) {}
 
   owner(control: Element): Element | undefined {
-    return control.matches(BUTTON)
-      ? (control.closest(MESSAGE) ?? undefined)
-      : undefined;
+    return control.matches(BUTTON) ? messageOf(control) : undefined;
   }
 
   button(message: Element): Element | undefined {

@@ -37,7 +37,11 @@ export class ReportedPhishing implements Enhancement, PressHandler {
   answered(choice: DialogChoice): void {
     const report = this.pending;
     this.pending = undefined;
-    if (report && choice === DIALOG_CHOICE.confirm)
-      void this.cleanup.afterReport(report);
+    if (choice === DIALOG_CHOICE.confirm) this.confirmed(report);
+  }
+
+  // A confirmed dialog cleans up only after a press that made a report.
+  private confirmed(report: Report | undefined): void {
+    if (report) void this.cleanup.afterReport(report);
   }
 }

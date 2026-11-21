@@ -24,8 +24,12 @@ export class MenuDelete implements ReportedDelete {
   private async fromMenu(button: Element): Promise<void> {
     this.presser.press(button);
     const reported = await this.waiter.until(() => this.items.item(REPORTED));
-    const del = reported && this.items.sibling(reported, DELETE);
     // No sign of the report, so the email stays, with its menu left open.
+    if (reported) this.deleteBeside(reported);
+  }
+
+  private deleteBeside(reported: Element): void {
+    const del = this.items.sibling(reported, DELETE);
     if (del) this.presser.press(del);
   }
 }

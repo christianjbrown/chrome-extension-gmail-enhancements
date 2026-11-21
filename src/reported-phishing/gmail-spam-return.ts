@@ -14,11 +14,18 @@ export class GmailSpamReturn implements SpamReturn {
   ) {}
 
   async reopen({ route }: Report): Promise<boolean> {
-    const { router, routes } = this.navigation;
+    const { router } = this.navigation;
     const left = await this.waiter.until(() =>
       router.current() === route ? undefined : true,
     );
-    if (!left || router.current() !== routes.list(route)) return false;
+    return left ? this.fromList(route) : false;
+  }
+
+  // Only from the list a report sends Gmail to: anywhere else, the person has
+  // moved on.
+  private fromList(route: string): boolean {
+    const { router, routes } = this.navigation;
+    if (router.current() !== routes.list(route)) return false;
     router.go(routes.inSpam(route));
     return true;
   }

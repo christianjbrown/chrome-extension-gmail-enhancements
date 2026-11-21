@@ -15,9 +15,13 @@ export class ReportedBinner implements Cleanup {
   ) {}
 
   async afterReport(report: Report): Promise<void> {
-    if (!(await this.spam.reopen(report))) return;
+    if (await this.spam.reopen(report)) await this.bin(report.messageId);
+  }
+
+  // The message may not show up again, and then it stays where it is.
+  private async bin(messageId: string): Promise<void> {
     const message = await this.waiter.until(() =>
-      this.messages.find(report.messageId),
+      this.messages.find(messageId),
     );
     if (message) await this.deleter.delete(message);
   }
