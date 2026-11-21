@@ -1,11 +1,14 @@
-import { GoogleRedirect } from "../../src/direct-links/google-redirect";
+import {
+  GOOGLE_REDIRECT,
+  RedirectUnwrapper,
+} from "../../src/direct-links/google-redirect";
 import { WebOnly } from "../../src/direct-links/url-policy";
 
 const usnews =
   "https://www.usnews.com/news/world/articles/2026-10-31/uk-pm-burnham-says-he-is-open-to-formal-apology-for-slavery-but-rules-out-reparations";
 
-describe("GoogleRedirect", () => {
-  const unwrapper = new GoogleRedirect(new WebOnly());
+describe("RedirectUnwrapper", () => {
+  const unwrapper = new RedirectUnwrapper(new WebOnly(), GOOGLE_REDIRECT);
 
   it("unwraps the redirect Gmail sends links through", () => {
     expect(

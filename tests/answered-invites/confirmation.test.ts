@@ -22,7 +22,12 @@ describe("GmailConfirmation", () => {
     );
     return {
       answered,
-      confirmation: new GmailConfirmation({ delay }, { answered }),
+      confirmation: new GmailConfirmation(
+        { delay },
+        { answered },
+        { everyMs: 500, checks: 30 },
+        2,
+      ),
     };
   }
 

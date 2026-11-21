@@ -1,5 +1,8 @@
 import { CalendarReplyLink } from "../../src/answered-invites/calendar-reply";
-import { GoogleRedirect } from "../../src/direct-links/google-redirect";
+import {
+  GOOGLE_REDIRECT,
+  RedirectUnwrapper,
+} from "../../src/direct-links/google-redirect";
 import { WebOnly } from "../../src/direct-links/url-policy";
 
 const reply =
@@ -7,7 +10,10 @@ const reply =
 
 describe("CalendarReplyLink", () => {
   const webOnly = new WebOnly();
-  const links = new CalendarReplyLink(new GoogleRedirect(webOnly), webOnly);
+  const links = new CalendarReplyLink(
+    new RedirectUnwrapper(webOnly, GOOGLE_REDIRECT),
+    webOnly,
+  );
 
   it.each([
     ["1", "yes"],

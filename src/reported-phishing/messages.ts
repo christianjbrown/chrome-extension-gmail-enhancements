@@ -1,13 +1,13 @@
 // Finds the message Gmail shows for a message id. Gmail keeps the views you
 // are not looking at in the page, hidden, so only the one on screen counts.
-import type { Visibility } from "../answered-invites/visibility";
+import { MESSAGE_ID } from "../gmail-message";
+import type { Visibility } from "../visibility";
 
 export interface MessageLookup {
   find(id: string): Element | undefined;
 }
 
-const MESSAGES = "[data-message-id]";
-export const MESSAGE_ID = "data-message-id";
+const MESSAGES = `[${MESSAGE_ID}]`;
 
 export class VisibleMessages implements MessageLookup {
   constructor(

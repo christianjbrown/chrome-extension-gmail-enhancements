@@ -1,4 +1,3 @@
-import type { MessageMenu } from "../../src/reported-phishing/message-menu";
 import { ReportedBinner } from "../../src/reported-phishing/reported-binner";
 import { GmailRoutes } from "../../src/reported-phishing/gmail-routes";
 
@@ -26,9 +25,7 @@ describe("ReportedBinner", () => {
       go: vi.fn(),
     };
     const press = vi.fn();
-    const menu: MessageMenu = {
-      owner: vi.fn(),
-      is: vi.fn(),
+    const menu = {
       button: vi.fn(() => ("button" in options ? options.button : button)),
       item: vi.fn(() => ("reported" in options ? options.reported : reported)),
       sibling: vi.fn(() => ("del" in options ? options.del : del)),
@@ -40,9 +37,9 @@ describe("ReportedBinner", () => {
         Promise.resolve(look() ?? look()),
     };
     const binner = new ReportedBinner(
-      { router, routes: new GmailRoutes() },
+      { router, routes: new GmailRoutes(16) },
       waiter,
-      { messages: { find }, menu },
+      { messages: { find }, buttons: menu, items: menu },
       { press },
     );
     return { binner, router, press, menu, find };

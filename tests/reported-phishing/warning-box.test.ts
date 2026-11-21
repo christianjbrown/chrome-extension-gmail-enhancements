@@ -13,12 +13,12 @@ describe("WarningBox", () => {
   const element = (id: string) => document.getElementById(id)!;
 
   it("finds the message its Report phishing button sits in", () => {
-    expect(new WarningBox().message(element("report"))).toBe(
+    expect(new WarningBox().reported(element("report"))).toBe(
       element("message"),
     );
   });
 
   it.each(["not-spam", "item", "outside"])("ignores %s", (id) => {
-    expect(new WarningBox().message(element(id))).toBeUndefined();
+    expect(new WarningBox().reported(element(id))).toBeUndefined();
   });
 });

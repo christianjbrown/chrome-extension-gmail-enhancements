@@ -1,4 +1,4 @@
-import { MousePresser } from "../../src/answered-invites/presser";
+import { MousePresser } from "../src/presser";
 
 describe("MousePresser", () => {
   it("sends the control a whole mouse press, in order", () => {

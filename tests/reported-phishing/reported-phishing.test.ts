@@ -1,7 +1,17 @@
+import { MenuReports } from "../../src/reported-phishing/menu-reports";
 import { GmailMessageMenu } from "../../src/reported-phishing/message-menu";
+import { GmailReportDialog } from "../../src/reported-phishing/report-dialog";
 import { ReportedPhishing } from "../../src/reported-phishing/reported-phishing";
 import { GmailRoutes } from "../../src/reported-phishing/gmail-routes";
 import { WarningBox } from "../../src/reported-phishing/warning-box";
+
+function controls() {
+  const menu = new GmailMessageMenu(document, { visible: () => true });
+  return {
+    places: [new MenuReports(menu, menu), new WarningBox()],
+    dialog: new GmailReportDialog(),
+  };
+}
 
 describe("ReportedPhishing", () => {
   const conversation = "#spam/FMfcgzAbcdefGhijkLmnopQrstuvWxyz";
@@ -23,14 +33,11 @@ describe("ReportedPhishing", () => {
       <button id="elsewhere">Elsewhere</button>
       <p id="text">Words</p>`;
     const afterReport = vi.fn(() => Promise.resolve());
-    const router = { current: vi.fn(() => route), go: vi.fn() };
+    const router = { current: vi.fn(() => route) };
     new ReportedPhishing(
       document,
-      { router, routes: new GmailRoutes() },
-      {
-        menu: new GmailMessageMenu(document, { visible: () => true }),
-        warning: new WarningBox(),
-      },
+      { router, routes: new GmailRoutes(16) },
+      controls(),
       { afterReport },
     ).start();
     const click = (...ids: string[]) => {
@@ -113,11 +120,11 @@ describe("ReportedPhishing", () => {
     const listeners: ((event: Event) => void)[] = [];
     new ReportedPhishing(
       { addEventListener: (_type, listener) => listeners.push(listener) },
-      { router: { current: vi.fn(), go: vi.fn() }, routes: new GmailRoutes() },
       {
-        menu: new GmailMessageMenu(document, { visible: () => true }),
-        warning: new WarningBox(),
+        router: { current: vi.fn() },
+        routes: new GmailRoutes(16),
       },
+      controls(),
       { afterReport },
     ).start();
 
@@ -131,11 +138,11 @@ describe("ReportedPhishing", () => {
 
     new ReportedPhishing(
       { addEventListener },
-      { router: { current: vi.fn(), go: vi.fn() }, routes: new GmailRoutes() },
       {
-        menu: new GmailMessageMenu(document, { visible: () => true }),
-        warning: new WarningBox(),
+        router: { current: vi.fn() },
+        routes: new GmailRoutes(16),
       },
+      controls(),
       { afterReport: vi.fn() },
     ).start();
 

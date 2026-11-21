@@ -4,21 +4,31 @@
 // "#inbox/<id>" a conversation in it, with a page in between
 // ("#spam/p2/<id>") further down a list. A conversation keeps its id wherever
 // it is, so "#spam/<id>" opens it once Gmail has moved it to Spam.
-export interface RoutePolicy {
+export interface ConversationRoutes {
   conversation(route: string): boolean;
+}
+
+export interface SpamRoutes {
   list(route: string): string;
   inSpam(route: string): string;
 }
 
 const SEPARATOR = "/";
-const SPAM = "#spam/";
-// Gmail's conversation ids are long runs of letters and digits, which no
-// list, page or label short enough to type looks like.
-const CONVERSATION_ID = /^[A-Za-z0-9]{16,}$/;
+const SPAM = `#spam${SEPARATOR}`;
 
-export class GmailRoutes implements RoutePolicy {
+export class GmailRoutes implements ConversationRoutes, SpamRoutes {
+  // Gmail's conversation ids are long runs of letters and digits, which no
+  // list, page or label short enough to type looks like.
+  private readonly conversationId: RegExp;
+
+  constructor(minIdLength: number) {
+    this.conversationId = new RegExp(`^[A-Za-z0-9]{${String(minIdLength)},}$`);
+  }
+
   conversation(route: string): boolean {
-    return route.includes(SEPARATOR) && CONVERSATION_ID.test(this.id(route));
+    return (
+      route.includes(SEPARATOR) && this.conversationId.test(this.id(route))
+    );
   }
 
   list(route: string): string {

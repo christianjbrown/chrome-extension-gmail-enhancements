@@ -1,8 +1,9 @@
 // Answer a meeting invitation, Yes, Maybe or No, and the email goes to Bin by
 // itself, the way Outlook does it. The event is in Calendar, and Bin keeps
 // the email for 30 days.
+import { MOUSE_EVENTS } from "../dom";
 import type { Enhancement } from "../enhancement";
-import type { EventSource } from "../event-source";
+import { BEFORE_GMAIL, type EventSource } from "../event-source";
 import type { Confirmation } from "./confirmation";
 import type { Binner } from "./invite-binner";
 import type { Rsvp, RsvpReader } from "./rsvp-reader";
@@ -22,11 +23,11 @@ export class AnsweredInvites implements Enhancement {
 
   start(): void {
     this.source.addEventListener(
-      "click",
+      MOUSE_EVENTS.click,
       (event) => {
         this.answered(event);
       },
-      { capture: true },
+      BEFORE_GMAIL,
     );
   }
 

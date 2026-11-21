@@ -1,4 +1,7 @@
-import { GoogleRedirect } from "../../src/direct-links/google-redirect";
+import {
+  GOOGLE_REDIRECT,
+  RedirectUnwrapper,
+} from "../../src/direct-links/google-redirect";
 import { LinkCleaner } from "../../src/direct-links/link-cleaner";
 import { WebOnly } from "../../src/direct-links/url-policy";
 
@@ -14,7 +17,10 @@ function link(attributes: Record<string, string>): HTMLAnchorElement {
 
 describe("LinkCleaner", () => {
   const webOnly = new WebOnly();
-  const cleaner = new LinkCleaner(new GoogleRedirect(webOnly), webOnly);
+  const cleaner = new LinkCleaner(
+    new RedirectUnwrapper(webOnly, GOOGLE_REDIRECT),
+    webOnly,
+  );
 
   it("strips the redirect Gmail would swap in on mousedown", () => {
     const anchor = link({

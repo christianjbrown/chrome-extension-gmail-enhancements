@@ -2,7 +2,7 @@
 // so nothing is ever deleted for good and Undo works as usual.
 import type { DeleteFinder } from "./delete-finder";
 import type { SafetyCheck } from "./lone-invite";
-import type { Presser } from "./presser";
+import type { Presser } from "../presser";
 
 export interface Binner {
   bin(message: Element): void;

@@ -107,6 +107,8 @@ How it fits together, all in `src`:
 
 - **`main.ts`** builds every enhancement and starts it. It's the only file that touches `document`, `window` or `MutationObserver`.
 - **`enhancement.ts`** is the one-method interface every enhancement implements.
+- **`config.ts`** holds the timings and limits, and only `main.ts` reads it.
+- **`dom.ts`**, **`gmail-labels.ts`**, **`gmail-message.ts`** and **`google-hosts.ts`** name the attributes, English words, message selector and hosts more than one part needs. **`presser.ts`**, **`timer.ts`** and **`visibility.ts`** are the small helpers both bins share.
 - **`direct-links/`** is the first enhancement:
   - **`direct-links.ts`** starts the click guard, cleans what's on the page, then watches for more.
   - **`node-watcher.ts`** reports nodes Gmail adds and links whose `href` changes.
@@ -117,14 +119,14 @@ How it fits together, all in `src`:
   - **`click-guard.ts`** cleans a link again the instant it's pressed.
 - **`answered-invites/`** bins invites you reply to:
   - **`answered-invites.ts`** hears every click and bins the invite once a reply is confirmed.
-  - **`rsvp-reader.ts`** works out whether a click answered an invite, and with what.
+  - **`rsvp-reader.ts`** works out whether a click answered an invite, and with what, by trying **`reply-link-rsvps.ts`** and **`labelled-rsvps.ts`** in turn. **`invite-check.ts`** says whether a message is an invite at all.
   - **`calendar-reply.ts`** reads the answer a Google Calendar `action=RESPOND` link sends.
   - **`rsvp-labels.ts`** reads the answer off a Yes, Maybe or No button.
   - **`confirmation.ts`** and **`answer-state.ts`** wait until Gmail shows the reply as your answer.
-  - **`invite-binner.ts`** presses Delete, using **`delete-finder.ts`** to find the right one, **`lone-invite.ts`** to check the invite is all it would bin, and **`presser.ts`** to press it.
+  - **`invite-binner.ts`** presses Delete, using **`delete-finder.ts`** to find the right one, **`lone-invite.ts`** to check the invite is all it would bin, and the shared presser to press it.
 
 - **`reported-phishing/`** bins phishing you report:
-  - **`reported-phishing.ts`** hears the "Report phishing" click and the dialog's confirm, and only counts reports made from an open conversation. **`warning-box.ts`** knows which message the warning box's own "Report phishing" button belongs to.
+  - **`reported-phishing.ts`** hears the "Report phishing" click and the dialog's confirm, and only counts reports made from an open conversation. **`menu-reports.ts`** knows which message's menu was opened, **`warning-box.ts`** knows which message the warning box's own "Report phishing" button belongs to, and **`report-dialog.ts`** reads the dialog's answer.
   - **`gmail-routes.ts`** says which addresses are an open conversation, which list Gmail goes back to, and where the conversation lives in Spam.
   - **`reported-binner.ts`** reopens the conversation in Spam, checks the menu says "Report as not phishing", then presses its Delete, using **`messages.ts`** to find the message again, **`message-menu.ts`** to read the menu, and **`poller.ts`** to wait for each step.
 

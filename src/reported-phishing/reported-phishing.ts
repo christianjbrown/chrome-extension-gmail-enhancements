@@ -1,13 +1,17 @@
 // Report an email as phishing and it goes to Bin as well. Gmail only moves it
 // to Spam, or leaves it there, for another 30 days, when the point of
 // reporting was to be rid of it.
+import { MESSAGE_ID } from "../gmail-message";
+import { BUTTON, MOUSE_EVENTS, ROLE_BUTTON, ROLE_MENU_ITEM } from "../dom";
 import type { Enhancement } from "../enhancement";
-import type { EventSource } from "../event-source";
-import { REPORT } from "./labels";
-import type { MessageMenu } from "./message-menu";
-import { MESSAGE_ID } from "./messages";
-import type { Navigation } from "./router";
-import type { ReportButton } from "./warning-box";
+import { BEFORE_GMAIL, type EventSource } from "../event-source";
+import {
+  DIALOG_CHOICE,
+  type DialogChoice,
+  type ReportDialog,
+} from "./report-dialog";
+import type { ReportPlace } from "./report-place";
+import type { ConversationNavigation } from "./router";
 
 export interface Report {
   // The address of the conversation the report was made from.
@@ -16,11 +20,11 @@ export interface Report {
   messageId: string;
 }
 
-// The two places Gmail offers "Report phishing": a message's own menu and the
-// warning box above a suspect message.
+// The places Gmail offers "Report phishing", such as a message's own menu and
+// the warning box above a suspect message, and the dialog that confirms it.
 export interface ReportControls {
-  menu: MessageMenu;
-  warning: ReportButton;
+  places: readonly ReportPlace[];
+  dialog: ReportDialog;
 }
 
 export interface Cleanup {
@@ -28,70 +32,58 @@ export interface Cleanup {
 }
 
 // Anything a person can press.
-const CONTROLS = "[role='menuitem'], button, [role='button']";
-// The buttons on Gmail's "Report Phishing" dialog say which they are.
-const DIALOG_ACTION = "[role='alertdialog'] [data-mdc-dialog-action]";
-const ACTION = "data-mdc-dialog-action";
-const CONFIRM = "ok";
+const CONTROLS = `${ROLE_MENU_ITEM}, ${BUTTON}, ${ROLE_BUTTON}`;
 
 export class ReportedPhishing implements Enhancement {
-  // The message whose menu was opened last, and the report waiting on the
-  // dialog Gmail asks it in.
-  private opened: Element | undefined;
+  // The report waiting on the dialog Gmail asks it in.
   private pending: Report | undefined;
 
   constructor(
     private readonly source: EventSource,
-    private readonly navigation: Navigation,
+    private readonly navigation: ConversationNavigation,
     private readonly controls: ReportControls,
     private readonly cleanup: Cleanup,
   ) {}
 
   start(): void {
     this.source.addEventListener(
-      "click",
+      MOUSE_EVENTS.click,
       (event) => {
         this.clicked(event.target);
       },
-      { capture: true },
+      BEFORE_GMAIL,
     );
   }
 
   private clicked(target: EventTarget | null): void {
     const control = (target as Partial<Element> | null)?.closest?.(CONTROLS);
     if (!control) return;
-    if (control.matches(DIALOG_ACTION)) this.answered(control);
-    else this.chose(control);
+    const choice = this.controls.dialog.choice(control);
+    if (choice === undefined) this.chose(control);
+    else this.answered(choice);
   }
 
+  // Every place sees every press, since some keep track of what was opened.
   private chose(control: Element): void {
-    const { menu } = this.controls;
-    const owner = menu.owner(control);
-    if (owner) this.opened = owner;
-    else if (menu.is(control, REPORT)) this.pending = this.report(this.opened);
-    else this.fromWarning(control);
-  }
-
-  // The warning box's button names its message by where it sits.
-  private fromWarning(control: Element): void {
-    const message = this.controls.warning.message(control);
+    const [message] = this.controls.places.flatMap(
+      (place) => place.reported(control) ?? [],
+    );
     if (message) this.pending = this.report(message);
   }
 
   // Only a report made from an open conversation counts.
-  private report(message: Element | undefined): Report | undefined {
+  private report(message: Element): Report | undefined {
     const route = this.navigation.router.current();
-    const messageId = message?.getAttribute(MESSAGE_ID);
+    const messageId = message.getAttribute(MESSAGE_ID);
     if (!messageId || !this.navigation.routes.conversation(route))
       return undefined;
     return { route, messageId };
   }
 
-  // Cancel, or anything else, drops the report.
-  private answered(control: Element): void {
+  private answered(choice: DialogChoice): void {
     const report = this.pending;
     this.pending = undefined;
-    if (report && control.getAttribute(ACTION) === CONFIRM)
+    if (report && choice === DIALOG_CHOICE.confirm)
       void this.cleanup.afterReport(report);
   }
 }

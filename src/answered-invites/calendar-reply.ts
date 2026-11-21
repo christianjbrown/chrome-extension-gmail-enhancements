@@ -4,20 +4,26 @@
 // Gmail redesign, so it is the most stable sign of an invite there is.
 import type { Unwrapper } from "../direct-links/google-redirect";
 import type { UrlPolicy } from "../direct-links/url-policy";
-import type { Answer } from "./answer";
+import { CALENDAR, GOOGLE, WWW_GOOGLE } from "../google-hosts";
+import { ANSWER, type Answer } from "./answer";
 
 export interface ReplyLinks {
   // The reply the link sends, or undefined when it is not a reply link.
   answer(href: string): Answer | undefined;
 }
 
-const HOSTS = new Set(["calendar.google.com", "www.google.com", "google.com"]);
+const HOSTS = new Set([CALENDAR, WWW_GOOGLE, GOOGLE]);
 // /calendar/event, or /calendar/u/1/event from a second signed-in account.
 const PATH = /^\/calendar\/(?:u\/\d+\/)?event$/;
+const ACTION = "action";
+// The action every reply link carries, whatever the answer.
+export const RESPOND = "RESPOND";
+// Calendar's code for the answer, in the rst parameter.
+const REPLY = "rst";
 const REPLIES = new Map<string, Answer>([
-  ["1", "yes"],
-  ["2", "no"],
-  ["3", "maybe"],
+  ["1", ANSWER.yes],
+  ["2", ANSWER.no],
+  ["3", ANSWER.maybe],
 ]);
 
 export class CalendarReplyLink implements ReplyLinks {
@@ -31,14 +37,14 @@ export class CalendarReplyLink implements ReplyLinks {
   answer(href: string): Answer | undefined {
     const url = this.policy.accept(this.unwrapper.unwrap(href) ?? href);
     if (url === undefined || !this.isReply(url)) return undefined;
-    return REPLIES.get(url.searchParams.get("rst") ?? "");
+    return REPLIES.get(url.searchParams.get(REPLY) ?? "");
   }
 
   private isReply(url: URL): boolean {
     return (
       HOSTS.has(url.hostname) &&
       PATH.test(url.pathname) &&
-      url.searchParams.get("action")?.toUpperCase() === "RESPOND"
+      url.searchParams.get(ACTION)?.toUpperCase() === RESPOND
     );
   }
 }

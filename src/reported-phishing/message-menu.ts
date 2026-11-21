@@ -3,27 +3,39 @@
 // the menu itself elsewhere on the page, so the open one is the one on screen.
 // Its items carry no labels of their own beyond their words, which are
 // English Gmail's.
-import { MESSAGE } from "../answered-invites/gmail-message";
-import type { Visibility } from "../answered-invites/visibility";
+import { MESSAGE } from "../gmail-message";
+import type { Visibility } from "../visibility";
+import { ARIA_LABEL, ROLE_MENU_ITEM } from "../dom";
+import { MORE_MESSAGE_OPTIONS } from "../gmail-labels";
 
-export interface MessageMenu {
+export interface MenuOwners {
   // The message whose menu a control opens, when it is that button.
   owner(control: Element): Element | undefined;
+}
+
+export interface MenuButtons {
   // The button that opens a message's menu.
   button(message: Element): Element | undefined;
+}
+
+export interface MenuLabels {
   // Whether a control is the menu item saying exactly this.
   is(control: Element, label: string): boolean;
+}
+
+export interface MenuItems {
   // The menu item on screen saying exactly this.
   item(label: string): Element | undefined;
   // The item saying this in the same menu as another item.
   sibling(item: Element, label: string): Element | undefined;
 }
 
-const BUTTON = "[aria-label='More message options']";
+const BUTTON = `[${ARIA_LABEL}='${MORE_MESSAGE_OPTIONS}']`;
 const MENU = "[role='menu']";
-const ITEM = "[role='menuitem']";
 
-export class GmailMessageMenu implements MessageMenu {
+export class GmailMessageMenu
+  implements MenuOwners, MenuButtons, MenuLabels, MenuItems
+{
   constructor(
     private readonly page: ParentNode,
     private readonly visibility: Visibility,
@@ -40,7 +52,9 @@ export class GmailMessageMenu implements MessageMenu {
   }
 
   is(control: Element, label: string): boolean {
-    return control.matches(ITEM) && control.textContent.trim() === label;
+    return (
+      control.matches(ROLE_MENU_ITEM) && control.textContent.trim() === label
+    );
   }
 
   item(label: string): Element | undefined {
@@ -53,7 +67,7 @@ export class GmailMessageMenu implements MessageMenu {
   }
 
   private labelled(within: ParentNode, label: string): Element | undefined {
-    return [...within.querySelectorAll(ITEM)].find(
+    return [...within.querySelectorAll(ROLE_MENU_ITEM)].find(
       (item) => this.is(item, label) && this.visibility.visible(item),
     );
   }

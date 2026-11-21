@@ -1,6 +1,7 @@
 import { ChosenAnswer } from "../../src/answered-invites/answer-state";
 import { SmartEventCards } from "../../src/answered-invites/event-card";
 import { RsvpLabels } from "../../src/answered-invites/rsvp-labels";
+import { ANSWER_WORDS } from "../../src/gmail-labels";
 
 function message(markup: string): Element {
   const root = document.createElement("div");
@@ -9,7 +10,10 @@ function message(markup: string): Element {
 }
 
 describe("ChosenAnswer", () => {
-  const state = new ChosenAnswer(new RsvpLabels(), new SmartEventCards());
+  const state = new ChosenAnswer(
+    new RsvpLabels(ANSWER_WORDS),
+    new SmartEventCards(),
+  );
 
   it.each(["aria-pressed", "aria-checked", "aria-selected"])(
     "sees an answer marked %s",

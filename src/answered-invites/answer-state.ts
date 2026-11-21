@@ -1,6 +1,6 @@
 // Whether Gmail shows a message's invitation as answered a given way.
 import type { Answer } from "./answer";
-import type { EventCards } from "./event-card";
+import type { MessageCards } from "./event-card";
 import type { Labels } from "./rsvp-labels";
 
 export interface AnswerState {
@@ -21,7 +21,7 @@ const RECORDED = "[aria-haspopup='menu']";
 export class ChosenAnswer implements AnswerState {
   constructor(
     private readonly labels: Labels,
-    private readonly cards: EventCards,
+    private readonly cards: MessageCards,
   ) {}
 
   answered(message: Element, answer: Answer): boolean {

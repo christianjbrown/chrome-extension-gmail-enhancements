@@ -1,6 +1,8 @@
 // Finds the Delete button that acts on the conversation a message is in.
-import { MESSAGE } from "./gmail-message";
-import type { Visibility } from "./visibility";
+import { ARIA_LABEL, ROLE_BUTTON } from "../dom";
+import { DELETE as DELETE_LABEL } from "../gmail-labels";
+import { MESSAGE } from "../gmail-message";
+import type { Visibility } from "../visibility";
 
 export interface DeleteButton {
   control: Element;
@@ -16,8 +18,8 @@ export interface DeleteFinder {
 // but its role, its aria-label (what a screen reader announces) and its
 // tooltip all say what it is, and say "Delete" in English Gmail. Some views
 // carry the tooltip as a plain title and nothing else.
-const DELETE = ["aria-label", "data-tooltip", "title"]
-  .map((attribute) => `[role='button'][${attribute}='Delete']`)
+const DELETE = [ARIA_LABEL, "data-tooltip", "title"]
+  .map((attribute) => `${ROLE_BUTTON}[${attribute}='${DELETE_LABEL}']`)
   .join(", ");
 
 export class NearestDelete implements DeleteFinder {
