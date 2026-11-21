@@ -1,5 +1,6 @@
 // Finds the links worth cleaning in a freshly rendered piece of the page.
 import { HREF, LINK } from "../dom";
+import { isElement, isParent } from "../node-guards";
 import { REDIRECT_MARK } from "./google-redirect";
 import type { Cleaner } from "./cleaner";
 import { SAFE_REDIRECT } from "./link-attributes";
@@ -29,13 +30,4 @@ export class LinkScanner implements Scanner {
         this.cleaner.clean(link);
       });
   }
-}
-
-// Text and comment nodes have neither, and are skipped.
-function isElement(node: Node): node is Element {
-  return "matches" in node;
-}
-
-function isParent(node: Node): node is Node & ParentNode {
-  return "querySelectorAll" in node;
 }

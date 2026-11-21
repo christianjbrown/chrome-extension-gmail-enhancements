@@ -1,6 +1,7 @@
 // Whether a message is an invitation: it carries an .ics file, or a
 // Calendar reply link.
 import { ARIA_LABEL, HREF, LINK } from "../dom";
+import { isLink } from "../node-guards";
 import { RESPOND } from "./calendar-link";
 import type { InviteCheck } from "./invite-check";
 import type { ReplyLinks } from "./reply-links";
@@ -17,8 +18,8 @@ export class CalendarInvite implements InviteCheck {
 
   invitation(message: Element): boolean {
     if (message.querySelector(ICS)) return true;
-    return [...message.querySelectorAll<HTMLAnchorElement>(REPLY_LINKS)].some(
-      (link) => this.links.answer(link.href) !== undefined,
-    );
+    return [...message.querySelectorAll(REPLY_LINKS)]
+      .filter(isLink)
+      .some((link) => this.links.answer(link.href) !== undefined);
   }
 }

@@ -1,3 +1,4 @@
+import { CONTROL_WORDS } from "../../src/gmail-labels";
 import { MenuDelete } from "../../src/reported-phishing/menu-delete";
 
 describe("MenuDelete", () => {
@@ -22,7 +23,7 @@ describe("MenuDelete", () => {
     const waiter = {
       until: <T>(look: () => T | undefined) => Promise.resolve(look()),
     };
-    const deleter = new MenuDelete(menu, menu, waiter, { press });
+    const deleter = new MenuDelete(menu, waiter, { press }, CONTROL_WORDS);
     return { deleter, press, menu };
   }
 

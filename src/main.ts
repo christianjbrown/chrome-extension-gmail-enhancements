@@ -27,7 +27,7 @@ import { RedirectUnwrapper } from "./direct-links/redirect-unwrapper";
 import { WebOnly } from "./direct-links/web-only";
 import { ElementVisibility } from "./element-visibility";
 import type { Enhancement } from "./enhancement";
-import { ANSWER_WORDS } from "./gmail-labels";
+import { ANSWER_WORDS, CONTROL_WORDS } from "./gmail-labels";
 import { MousePresser } from "./mouse-presser";
 import { Poller } from "./poller";
 import { ConversationReports } from "./reported-phishing/conversation-reports";
@@ -98,7 +98,7 @@ function answeredInvites(): Enhancement {
       CONTENT_CONFIG.inviteSettledChecks,
     ),
     new ConversationBinner(
-      new NearestDelete(visibility),
+      new NearestDelete(visibility, CONTROL_WORDS.delete),
       new LoneInvite(visibility),
       presser,
     ),
@@ -107,7 +107,11 @@ function answeredInvites(): Enhancement {
 
 function reportedPhishing(): Enhancement {
   const router = new HashRouter(window.location);
-  const menu = new GmailMessageMenu(document, visibility);
+  const menu = new GmailMessageMenu(
+    document,
+    visibility,
+    CONTROL_WORDS.moreMessageOptions,
+  );
   const waiter = new Poller(timer, CONTENT_CONFIG.phishingChecks);
   const navigation = {
     router,
@@ -116,7 +120,10 @@ function reportedPhishing(): Enhancement {
   return new ReportedPhishing(
     window,
     new ReportPresses({
-      places: [new MenuReports(menu, menu), new WarningBox()],
+      places: [
+        new MenuReports(menu, menu, CONTROL_WORDS.report),
+        new WarningBox(CONTROL_WORDS.report),
+      ],
       dialog: new GmailReportDialog(),
     }),
     new ConversationReports(navigation),
@@ -124,7 +131,7 @@ function reportedPhishing(): Enhancement {
       new GmailSpamReturn(navigation, waiter),
       waiter,
       new VisibleMessages(document, visibility),
-      new MenuDelete(menu, menu, waiter, presser),
+      new MenuDelete(menu, waiter, presser, CONTROL_WORDS),
     ),
   );
 }

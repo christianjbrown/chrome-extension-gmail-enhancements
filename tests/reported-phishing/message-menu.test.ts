@@ -1,3 +1,4 @@
+import { CONTROL_WORDS } from "../../src/gmail-labels";
 import { GmailMessageMenu } from "../../src/reported-phishing/message-menu";
 
 describe("GmailMessageMenu", () => {
@@ -8,7 +9,14 @@ describe("GmailMessageMenu", () => {
   function page(html: string) {
     const root = document.createElement("div");
     root.innerHTML = html;
-    return { root, menu: new GmailMessageMenu(root, visibility) };
+    return {
+      root,
+      menu: new GmailMessageMenu(
+        root,
+        visibility,
+        CONTROL_WORDS.moreMessageOptions,
+      ),
+    };
   }
 
   const byId = (root: Element, id: string) => root.querySelector(`#${id}`)!;

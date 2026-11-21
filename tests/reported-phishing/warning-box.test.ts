@@ -1,3 +1,4 @@
+import { CONTROL_WORDS } from "../../src/gmail-labels";
 import { WarningBox } from "../../src/reported-phishing/warning-box";
 
 describe("WarningBox", () => {
@@ -13,12 +14,14 @@ describe("WarningBox", () => {
   const element = (id: string) => document.getElementById(id)!;
 
   it("finds the message its Report phishing button sits in", () => {
-    expect(new WarningBox().reported(element("report"))).toBe(
-      element("message"),
-    );
+    expect(
+      new WarningBox(CONTROL_WORDS.report).reported(element("report")),
+    ).toBe(element("message"));
   });
 
   it.each(["not-spam", "item", "outside"])("ignores %s", (id) => {
-    expect(new WarningBox().reported(element(id))).toBeUndefined();
+    expect(
+      new WarningBox(CONTROL_WORDS.report).reported(element(id)),
+    ).toBeUndefined();
   });
 });

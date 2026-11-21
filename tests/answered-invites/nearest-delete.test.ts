@@ -1,9 +1,10 @@
+import { CONTROL_WORDS } from "../../src/gmail-labels";
 import { NearestDelete } from "../../src/answered-invites/nearest-delete";
 
 const visibility = {
   visible: (element: Element) => element.closest("[hidden]") === null,
 };
-const finder = new NearestDelete(visibility);
+const finder = new NearestDelete(visibility, CONTROL_WORDS.delete);
 
 function page(markup: string): HTMLElement {
   const root = document.createElement("div");

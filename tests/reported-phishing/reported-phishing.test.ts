@@ -1,3 +1,4 @@
+import { CONTROL_WORDS } from "../../src/gmail-labels";
 import { DIALOG_CHOICE } from "../../src/reported-phishing/report-dialog";
 import { MenuReports } from "../../src/reported-phishing/menu-reports";
 import { GmailMessageMenu } from "../../src/reported-phishing/message-menu";
@@ -9,9 +10,16 @@ import { ConversationReports } from "../../src/reported-phishing/conversation-re
 import { WarningBox } from "../../src/reported-phishing/warning-box";
 
 function controls() {
-  const menu = new GmailMessageMenu(document, { visible: () => true });
+  const menu = new GmailMessageMenu(
+    document,
+    { visible: () => true },
+    CONTROL_WORDS.moreMessageOptions,
+  );
   return {
-    places: [new MenuReports(menu, menu), new WarningBox()],
+    places: [
+      new MenuReports(menu, menu, CONTROL_WORDS.report),
+      new WarningBox(CONTROL_WORDS.report),
+    ],
     dialog: new GmailReportDialog(),
   };
 }

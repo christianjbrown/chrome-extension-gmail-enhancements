@@ -1,6 +1,5 @@
 // "Report phishing" in a message's own menu. The menu's items do not say which
 // message they are about, so it is the one whose menu was opened last.
-import { REPORT } from "../gmail-labels";
 import type { MenuLabels, MenuOwners } from "./menu-parts";
 import type { ReportPlace } from "./report-place";
 
@@ -10,6 +9,7 @@ export class MenuReports implements ReportPlace {
   constructor(
     private readonly owners: MenuOwners,
     private readonly labels: MenuLabels,
+    private readonly report: string,
   ) {}
 
   reported(control: Element): Element | undefined {
@@ -21,6 +21,6 @@ export class MenuReports implements ReportPlace {
 
   // "Report phishing" reports the message whose menu was opened last.
   private reportedFrom(control: Element): Element | undefined {
-    return this.labels.is(control, REPORT) ? this.opened : undefined;
+    return this.labels.is(control, this.report) ? this.opened : undefined;
   }
 }
