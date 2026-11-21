@@ -1,4 +1,4 @@
-import { MousePresser } from "../src/presser";
+import { MousePresser } from "../src/mouse-presser";
 
 describe("MousePresser", () => {
   it("sends the control a whole mouse press, in order", () => {

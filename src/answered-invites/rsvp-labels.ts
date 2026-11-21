@@ -6,10 +6,7 @@
 // reply links are recognised.
 import { ARIA_LABEL } from "../dom";
 import type { Answer } from "./answer";
-
-export interface Labels {
-  answer(control: Element): Answer | undefined;
-}
+import type { Labels } from "./labels";
 
 // The first whole word, so "Yes, I'll be there" counts and "Notes" does not.
 const FIRST_WORD = /^\w+/;

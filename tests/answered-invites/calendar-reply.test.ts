@@ -1,9 +1,7 @@
 import { CalendarReplyLink } from "../../src/answered-invites/calendar-reply";
-import {
-  GOOGLE_REDIRECT,
-  RedirectUnwrapper,
-} from "../../src/direct-links/google-redirect";
-import { WebOnly } from "../../src/direct-links/url-policy";
+import { GOOGLE_REDIRECT } from "../../src/direct-links/google-redirect";
+import { RedirectUnwrapper } from "../../src/direct-links/redirect-unwrapper";
+import { WebOnly } from "../../src/direct-links/web-only";
 
 const reply =
   "https://calendar.google.com/calendar/event?action=RESPOND&eid=abc";

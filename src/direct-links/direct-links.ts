@@ -1,8 +1,8 @@
 // Links in emails go straight where they point, instead of through Google's
 // redirect page.
 import type { Enhancement } from "../enhancement";
-import type { Scanner } from "./link-scanner";
-import type { Watcher } from "./node-watcher";
+import type { Scanner } from "./scanner";
+import type { Watcher } from "./watcher";
 
 export class DirectLinks implements Enhancement {
   constructor(

@@ -1,9 +1,6 @@
-// Waits for something to show up on the page, giving up after a while.
+// Looks for something on a schedule, giving up after the last look.
 import type { PollSchedule, Timer } from "../timer";
-
-export interface Waiter {
-  until<T>(find: () => T | undefined): Promise<T | undefined>;
-}
+import type { Waiter } from "./waiter";
 
 export class Poller implements Waiter {
   constructor(

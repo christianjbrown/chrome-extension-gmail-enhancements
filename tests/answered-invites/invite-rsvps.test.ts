@@ -1,15 +1,13 @@
 import { CalendarReplyLink } from "../../src/answered-invites/calendar-reply";
 import { SmartEventCards } from "../../src/answered-invites/event-card";
-import { CalendarInvite } from "../../src/answered-invites/invite-check";
+import { CalendarInvite } from "../../src/answered-invites/calendar-invite";
 import { LabelledRsvps } from "../../src/answered-invites/labelled-rsvps";
 import { ReplyLinkRsvps } from "../../src/answered-invites/reply-link-rsvps";
 import { RsvpLabels } from "../../src/answered-invites/rsvp-labels";
-import { InviteRsvps } from "../../src/answered-invites/rsvp-reader";
-import {
-  GOOGLE_REDIRECT,
-  RedirectUnwrapper,
-} from "../../src/direct-links/google-redirect";
-import { WebOnly } from "../../src/direct-links/url-policy";
+import { InviteRsvps } from "../../src/answered-invites/invite-rsvps";
+import { GOOGLE_REDIRECT } from "../../src/direct-links/google-redirect";
+import { RedirectUnwrapper } from "../../src/direct-links/redirect-unwrapper";
+import { WebOnly } from "../../src/direct-links/web-only";
 import { ANSWER_WORDS } from "../../src/gmail-labels";
 
 const respond = "https://calendar.google.com/calendar/event?action=RESPOND";

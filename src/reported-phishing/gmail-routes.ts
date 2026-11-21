@@ -4,14 +4,7 @@
 // "#inbox/<id>" a conversation in it, with a page in between
 // ("#spam/p2/<id>") further down a list. A conversation keeps its id wherever
 // it is, so "#spam/<id>" opens it once Gmail has moved it to Spam.
-export interface ConversationRoutes {
-  conversation(route: string): boolean;
-}
-
-export interface SpamRoutes {
-  list(route: string): string;
-  inSpam(route: string): string;
-}
+import type { ConversationRoutes, SpamRoutes } from "./routes";
 
 const SEPARATOR = "/";
 const SPAM = `#spam${SEPARATOR}`;

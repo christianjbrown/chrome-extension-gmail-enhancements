@@ -1,12 +1,9 @@
 // Moves an answered invitation's conversation to Bin with Gmail's own Delete,
 // so nothing is ever deleted for good and Undo works as usual.
-import type { DeleteFinder } from "./delete-finder";
-import type { SafetyCheck } from "./lone-invite";
 import type { Presser } from "../presser";
-
-export interface Binner {
-  bin(message: Element): void;
-}
+import type { Binner } from "./binner";
+import type { DeleteFinder } from "./delete-finder";
+import type { SafetyCheck } from "./safety-check";
 
 export class ConversationBinner implements Binner {
   constructor(

@@ -1,6 +1,6 @@
 import { MenuReports } from "../../src/reported-phishing/menu-reports";
 import { GmailMessageMenu } from "../../src/reported-phishing/message-menu";
-import { GmailReportDialog } from "../../src/reported-phishing/report-dialog";
+import { GmailReportDialog } from "../../src/reported-phishing/gmail-report-dialog";
 import { ReportedPhishing } from "../../src/reported-phishing/reported-phishing";
 import { GmailRoutes } from "../../src/reported-phishing/gmail-routes";
 import { WarningBox } from "../../src/reported-phishing/warning-box";

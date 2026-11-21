@@ -1,6 +1,6 @@
 import { AnsweredInvites } from "../../src/answered-invites/answered-invites";
 import type { Answer } from "../../src/answered-invites/answer";
-import type { Rsvp } from "../../src/answered-invites/rsvp-reader";
+import type { Rsvp } from "../../src/answered-invites/rsvp";
 
 describe("AnsweredInvites", () => {
   const message = document.createElement("div");

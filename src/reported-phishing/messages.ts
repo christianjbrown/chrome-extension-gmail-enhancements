@@ -2,10 +2,7 @@
 // are not looking at in the page, hidden, so only the one on screen counts.
 import { MESSAGE_ID, WITH_MESSAGE_ID } from "../gmail-message";
 import type { Visibility } from "../visibility";
-
-export interface MessageLookup {
-  find(id: string): Element | undefined;
-}
+import type { MessageLookup } from "./message-lookup";
 
 export class VisibleMessages implements MessageLookup {
   constructor(

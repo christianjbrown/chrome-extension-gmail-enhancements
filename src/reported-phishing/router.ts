@@ -1,6 +1,6 @@
 // Where Gmail is, and a way to send it somewhere else. main.ts hands over the
 // window's location.
-import type { ConversationRoutes, SpamRoutes } from "./gmail-routes";
+import type { ConversationRoutes, SpamRoutes } from "./routes";
 
 interface RouteReader {
   current(): string;

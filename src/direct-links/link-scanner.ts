@@ -1,11 +1,9 @@
 // Finds the links worth cleaning in a freshly rendered piece of the page.
 import { HREF, LINK } from "../dom";
 import { REDIRECT_MARK } from "./google-redirect";
-import { SAFE_REDIRECT, type Cleaner } from "./link-cleaner";
-
-export interface Scanner {
-  scan(root: Node): void;
-}
+import type { Cleaner } from "./cleaner";
+import { SAFE_REDIRECT } from "./link-attributes";
+import type { Scanner } from "./scanner";
 
 const LINKS = `${LINK}[${SAFE_REDIRECT}], ${LINK}[${HREF}*='${REDIRECT_MARK}']`;
 

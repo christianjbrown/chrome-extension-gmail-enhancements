@@ -1,7 +1,7 @@
 // "Report phishing" in a message's own menu. The menu's items do not say which
 // message they are about, so it is the one whose menu was opened last.
 import { REPORT } from "../gmail-labels";
-import type { MenuLabels, MenuOwners } from "./message-menu";
+import type { MenuLabels, MenuOwners } from "./menu-parts";
 import type { ReportPlace } from "./report-place";
 
 export class MenuReports implements ReportPlace {

@@ -4,17 +4,8 @@
 // it, in an element whose data-container-id names the message, such as
 // "0:msg-f:123:extractedsmartmailevent" for data-message-id="#msg-f:123".
 import { GMAIL_ID, MESSAGE_ID, MESSAGE_ID_PREFIX } from "../gmail-message";
-
-export interface CardMessages {
-  // The message a control on a card is about.
-  message(control: Element): Element | undefined;
-}
-
-export interface MessageCards {
-  // The card Gmail drew for a message, if any. Gmail draws a new card each
-  // time it records an answer, so it is looked up afresh rather than kept.
-  card(message: Element): Element | undefined;
-}
+import type { CardMessages } from "./card-messages";
+import type { MessageCards } from "./message-cards";
 
 const CONTAINER_ID = "data-container-id";
 const CARD = `[${CONTAINER_ID}]`;

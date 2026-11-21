@@ -1,30 +1,9 @@
-// Reads the reply a Google Calendar invitation link sends. Every invitation
-// Calendar emails carries Yes, Maybe and No links of the form
-// .../calendar/event?action=RESPOND&rst=<n>, a format that has outlived every
-// Gmail redesign, so it is the most stable sign of an invite there is.
-import type { Unwrapper } from "../direct-links/google-redirect";
+// Reads the reply a Google Calendar invitation link sends.
+import type { Unwrapper } from "../direct-links/unwrapper";
 import type { UrlPolicy } from "../direct-links/url-policy";
-import { CALENDAR, GOOGLE, WWW_GOOGLE } from "../google-hosts";
-import { ANSWER, type Answer } from "./answer";
-
-export interface ReplyLinks {
-  // The reply the link sends, or undefined when it is not a reply link.
-  answer(href: string): Answer | undefined;
-}
-
-const HOSTS = new Set([CALENDAR, WWW_GOOGLE, GOOGLE]);
-// /calendar/event, or /calendar/u/1/event from a second signed-in account.
-const PATH = /^\/calendar\/(?:u\/\d+\/)?event$/;
-const ACTION = "action";
-// The action every reply link carries, whatever the answer.
-export const RESPOND = "RESPOND";
-// Calendar's code for the answer, in the rst parameter.
-const REPLY = "rst";
-const REPLIES = new Map<string, Answer>([
-  ["1", ANSWER.yes],
-  ["2", ANSWER.no],
-  ["3", ANSWER.maybe],
-]);
+import type { Answer } from "./answer";
+import { ACTION, HOSTS, PATH, REPLIES, REPLY, RESPOND } from "./calendar-link";
+import type { ReplyLinks } from "./reply-links";
 
 export class CalendarReplyLink implements ReplyLinks {
   constructor(

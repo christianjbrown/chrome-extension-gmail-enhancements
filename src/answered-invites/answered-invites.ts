@@ -5,8 +5,9 @@ import { MOUSE_EVENTS } from "../dom";
 import type { Enhancement } from "../enhancement";
 import { BEFORE_GMAIL, type EventSource } from "../event-source";
 import type { Confirmation } from "./confirmation";
-import type { Binner } from "./invite-binner";
-import type { Rsvp, RsvpReader } from "./rsvp-reader";
+import type { Binner } from "./binner";
+import type { Rsvp } from "./rsvp";
+import type { RsvpReader } from "./rsvp-reader";
 
 export class AnsweredInvites implements Enhancement {
   // The last answer given on each invitation. Only the latest one's

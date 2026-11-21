@@ -1,5 +1,5 @@
-import { GmailConfirmation } from "../../src/answered-invites/confirmation";
-import type { Rsvp } from "../../src/answered-invites/rsvp-reader";
+import { GmailConfirmation } from "../../src/answered-invites/gmail-confirmation";
+import type { Rsvp } from "../../src/answered-invites/rsvp";
 
 function rsvp(via: Rsvp["via"]): Rsvp {
   const message = document.createElement("div");
