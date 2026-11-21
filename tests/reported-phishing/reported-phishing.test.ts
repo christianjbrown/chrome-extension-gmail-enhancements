@@ -26,7 +26,7 @@ describe("ReportedPhishing", () => {
     const router = { current: vi.fn(() => route), go: vi.fn() };
     new ReportedPhishing(
       document,
-      { router, routes: new GmailRoutes() },
+      { router, routes: new GmailRoutes(16) },
       {
         menu: new GmailMessageMenu(document, { visible: () => true }),
         warning: new WarningBox(),
@@ -113,7 +113,10 @@ describe("ReportedPhishing", () => {
     const listeners: ((event: Event) => void)[] = [];
     new ReportedPhishing(
       { addEventListener: (_type, listener) => listeners.push(listener) },
-      { router: { current: vi.fn(), go: vi.fn() }, routes: new GmailRoutes() },
+      {
+        router: { current: vi.fn(), go: vi.fn() },
+        routes: new GmailRoutes(16),
+      },
       {
         menu: new GmailMessageMenu(document, { visible: () => true }),
         warning: new WarningBox(),
@@ -131,7 +134,10 @@ describe("ReportedPhishing", () => {
 
     new ReportedPhishing(
       { addEventListener },
-      { router: { current: vi.fn(), go: vi.fn() }, routes: new GmailRoutes() },
+      {
+        router: { current: vi.fn(), go: vi.fn() },
+        routes: new GmailRoutes(16),
+      },
       {
         menu: new GmailMessageMenu(document, { visible: () => true }),
         warning: new WarningBox(),

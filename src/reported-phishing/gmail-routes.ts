@@ -12,14 +12,20 @@ export interface RoutePolicy {
 
 const SEPARATOR = "/";
 const SPAM = `#spam${SEPARATOR}`;
-// Gmail's conversation ids are long runs of letters and digits, which no
-// list, page or label short enough to type looks like.
-const MIN_ID_LENGTH = 16;
-const CONVERSATION_ID = new RegExp(`^[A-Za-z0-9]{${String(MIN_ID_LENGTH)},}$`);
 
 export class GmailRoutes implements RoutePolicy {
+  // Gmail's conversation ids are long runs of letters and digits, which no
+  // list, page or label short enough to type looks like.
+  private readonly conversationId: RegExp;
+
+  constructor(minIdLength: number) {
+    this.conversationId = new RegExp(`^[A-Za-z0-9]{${String(minIdLength)},}$`);
+  }
+
   conversation(route: string): boolean {
-    return route.includes(SEPARATOR) && CONVERSATION_ID.test(this.id(route));
+    return (
+      route.includes(SEPARATOR) && this.conversationId.test(this.id(route))
+    );
   }
 
   list(route: string): string {

@@ -18,6 +18,7 @@ import { LINK_ATTRIBUTES, LinkCleaner } from "./direct-links/link-cleaner";
 import { LinkScanner } from "./direct-links/link-scanner";
 import { NodeWatcher } from "./direct-links/node-watcher";
 import { WebOnly } from "./direct-links/url-policy";
+import { CONTENT_CONFIG } from "./config";
 import type { Enhancement } from "./enhancement";
 import { GmailMessageMenu } from "./reported-phishing/message-menu";
 import { VisibleMessages } from "./reported-phishing/messages";
@@ -67,7 +68,12 @@ function answeredInvites(): Enhancement {
       labels,
       cards,
     ),
-    new GmailConfirmation(timer, new ChosenAnswer(labels, cards)),
+    new GmailConfirmation(
+      timer,
+      new ChosenAnswer(labels, cards),
+      CONTENT_CONFIG.inviteChecks,
+      CONTENT_CONFIG.inviteSettledChecks,
+    ),
     new ConversationBinner(
       new NearestDelete(visibility),
       new LoneInvite(visibility),
@@ -84,14 +90,17 @@ function reportedPhishing(): Enhancement {
     },
   };
   const menu = new GmailMessageMenu(document, visibility);
-  const navigation = { router, routes: new GmailRoutes() };
+  const navigation = {
+    router,
+    routes: new GmailRoutes(CONTENT_CONFIG.conversationIdMinLength),
+  };
   return new ReportedPhishing(
     window,
     navigation,
     { menu, warning: new WarningBox() },
     new ReportedBinner(
       navigation,
-      new Poller(timer),
+      new Poller(timer, CONTENT_CONFIG.phishingChecks),
       { messages: new VisibleMessages(document, visibility), menu },
       presser,
     ),

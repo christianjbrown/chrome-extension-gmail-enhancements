@@ -1,7 +1,7 @@
 import { GmailRoutes } from "../../src/reported-phishing/gmail-routes";
 
 describe("GmailRoutes", () => {
-  const routes = new GmailRoutes();
+  const routes = new GmailRoutes(16);
   const id = "FMfcgzAbcdefGhijkLmnopQrstuvWxyz";
 
   it.each([

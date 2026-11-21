@@ -40,7 +40,7 @@ describe("ReportedBinner", () => {
         Promise.resolve(look() ?? look()),
     };
     const binner = new ReportedBinner(
-      { router, routes: new GmailRoutes() },
+      { router, routes: new GmailRoutes(16) },
       waiter,
       { messages: { find }, menu },
       { press },
