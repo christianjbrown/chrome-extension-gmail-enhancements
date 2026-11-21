@@ -1,9 +1,16 @@
 import { CalendarReplyLink } from "../../src/answered-invites/calendar-reply";
 import { SmartEventCards } from "../../src/answered-invites/event-card";
+import { CalendarInvite } from "../../src/answered-invites/invite-check";
+import { LabelledRsvps } from "../../src/answered-invites/labelled-rsvps";
+import { ReplyLinkRsvps } from "../../src/answered-invites/reply-link-rsvps";
 import { RsvpLabels } from "../../src/answered-invites/rsvp-labels";
 import { InviteRsvps } from "../../src/answered-invites/rsvp-reader";
-import { GoogleRedirect } from "../../src/direct-links/google-redirect";
+import {
+  GOOGLE_REDIRECT,
+  RedirectUnwrapper,
+} from "../../src/direct-links/google-redirect";
 import { WebOnly } from "../../src/direct-links/url-policy";
+import { ANSWER_WORDS } from "../../src/gmail-labels";
 
 const respond = "https://calendar.google.com/calendar/event?action=RESPOND";
 
@@ -31,9 +38,18 @@ function at(root: HTMLElement, id: string): Element {
 
 describe("InviteRsvps", () => {
   const webOnly = new WebOnly();
+  const links = new CalendarReplyLink(
+    new RedirectUnwrapper(webOnly, GOOGLE_REDIRECT),
+    webOnly,
+  );
   const reader = new InviteRsvps(
-    new CalendarReplyLink(new GoogleRedirect(webOnly), webOnly),
-    new RsvpLabels(),
+    [
+      new ReplyLinkRsvps(links),
+      new LabelledRsvps(
+        new RsvpLabels(ANSWER_WORDS),
+        new CalendarInvite(links),
+      ),
+    ],
     new SmartEventCards(),
   );
   const message = at(invite, "message");

@@ -1,3 +1,4 @@
+import { ANSWER_WORDS } from "../../src/gmail-labels";
 import { RsvpLabels } from "../../src/answered-invites/rsvp-labels";
 
 function control(markup: string): Element {
@@ -7,7 +8,7 @@ function control(markup: string): Element {
 }
 
 describe("RsvpLabels", () => {
-  const labels = new RsvpLabels();
+  const labels = new RsvpLabels(ANSWER_WORDS);
 
   it.each([
     [`<div role="button"> Yes </div>`, "yes"],

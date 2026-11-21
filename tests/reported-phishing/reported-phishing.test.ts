@@ -1,7 +1,19 @@
+import { MenuReports } from "../../src/reported-phishing/menu-reports";
 import { GmailMessageMenu } from "../../src/reported-phishing/message-menu";
+import { GmailReportDialog } from "../../src/reported-phishing/report-dialog";
 import { ReportedPhishing } from "../../src/reported-phishing/reported-phishing";
 import { GmailRoutes } from "../../src/reported-phishing/gmail-routes";
 import { WarningBox } from "../../src/reported-phishing/warning-box";
+
+function controls() {
+  return {
+    places: [
+      new MenuReports(new GmailMessageMenu(document, { visible: () => true })),
+      new WarningBox(),
+    ],
+    dialog: new GmailReportDialog(),
+  };
+}
 
 describe("ReportedPhishing", () => {
   const conversation = "#spam/FMfcgzAbcdefGhijkLmnopQrstuvWxyz";
@@ -27,10 +39,7 @@ describe("ReportedPhishing", () => {
     new ReportedPhishing(
       document,
       { router, routes: new GmailRoutes(16) },
-      {
-        menu: new GmailMessageMenu(document, { visible: () => true }),
-        warning: new WarningBox(),
-      },
+      controls(),
       { afterReport },
     ).start();
     const click = (...ids: string[]) => {
@@ -117,10 +126,7 @@ describe("ReportedPhishing", () => {
         router: { current: vi.fn(), go: vi.fn() },
         routes: new GmailRoutes(16),
       },
-      {
-        menu: new GmailMessageMenu(document, { visible: () => true }),
-        warning: new WarningBox(),
-      },
+      controls(),
       { afterReport },
     ).start();
 
@@ -138,10 +144,7 @@ describe("ReportedPhishing", () => {
         router: { current: vi.fn(), go: vi.fn() },
         routes: new GmailRoutes(16),
       },
-      {
-        menu: new GmailMessageMenu(document, { visible: () => true }),
-        warning: new WarningBox(),
-      },
+      controls(),
       { afterReport: vi.fn() },
     ).start();
 

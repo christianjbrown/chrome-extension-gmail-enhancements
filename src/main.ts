@@ -11,27 +11,39 @@ import { LoneInvite } from "./answered-invites/lone-invite";
 import { MousePresser } from "./answered-invites/presser";
 import { RsvpLabels } from "./answered-invites/rsvp-labels";
 import { InviteRsvps } from "./answered-invites/rsvp-reader";
+import { CalendarInvite } from "./answered-invites/invite-check";
+import { LabelledRsvps } from "./answered-invites/labelled-rsvps";
+import { ReplyLinkRsvps } from "./answered-invites/reply-link-rsvps";
 import { ClickGuard } from "./direct-links/click-guard";
 import { DirectLinks } from "./direct-links/direct-links";
-import { GoogleRedirect } from "./direct-links/google-redirect";
+import {
+  GOOGLE_REDIRECT,
+  RedirectUnwrapper,
+} from "./direct-links/google-redirect";
 import { LINK_ATTRIBUTES, LinkCleaner } from "./direct-links/link-cleaner";
 import { LinkScanner } from "./direct-links/link-scanner";
 import { NodeWatcher } from "./direct-links/node-watcher";
 import { WebOnly } from "./direct-links/url-policy";
 import { CONTENT_CONFIG } from "./config";
 import type { Enhancement } from "./enhancement";
+import { ANSWER_WORDS } from "./gmail-labels";
 import { GmailMessageMenu } from "./reported-phishing/message-menu";
 import { VisibleMessages } from "./reported-phishing/messages";
 import { Poller } from "./reported-phishing/poller";
 import { ReportedBinner } from "./reported-phishing/reported-binner";
 import { ReportedPhishing } from "./reported-phishing/reported-phishing";
+import { MenuReports } from "./reported-phishing/menu-reports";
+import { GmailReportDialog } from "./reported-phishing/report-dialog";
 import type { Router } from "./reported-phishing/router";
 import { GmailRoutes } from "./reported-phishing/gmail-routes";
 import { WarningBox } from "./reported-phishing/warning-box";
 
 function directLinks(): Enhancement {
   const webOnly = new WebOnly();
-  const cleaner = new LinkCleaner(new GoogleRedirect(webOnly), webOnly);
+  const cleaner = new LinkCleaner(
+    new RedirectUnwrapper(webOnly, GOOGLE_REDIRECT),
+    webOnly,
+  );
   return new DirectLinks(
     document,
     new LinkScanner(cleaner),
@@ -59,13 +71,19 @@ const presser = new MousePresser(
 
 function answeredInvites(): Enhancement {
   const webOnly = new WebOnly();
-  const labels = new RsvpLabels();
+  const labels = new RsvpLabels(ANSWER_WORDS);
   const cards = new SmartEventCards();
+  const links = new CalendarReplyLink(
+    new RedirectUnwrapper(webOnly, GOOGLE_REDIRECT),
+    webOnly,
+  );
   return new AnsweredInvites(
     window,
     new InviteRsvps(
-      new CalendarReplyLink(new GoogleRedirect(webOnly), webOnly),
-      labels,
+      [
+        new ReplyLinkRsvps(links),
+        new LabelledRsvps(labels, new CalendarInvite(links)),
+      ],
       cards,
     ),
     new GmailConfirmation(
@@ -97,7 +115,10 @@ function reportedPhishing(): Enhancement {
   return new ReportedPhishing(
     window,
     navigation,
-    { menu, warning: new WarningBox() },
+    {
+      places: [new MenuReports(menu), new WarningBox()],
+      dialog: new GmailReportDialog(),
+    },
     new ReportedBinner(
       navigation,
       new Poller(timer, CONTENT_CONFIG.phishingChecks),

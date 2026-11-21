@@ -1,21 +1,28 @@
 // Works out whether a click answered an invitation, and how.
-import { ARIA_LABEL, BUTTON, HREF, LINK, ROLE_BUTTON } from "../dom";
+import { BUTTON, HREF, LINK, ROLE_BUTTON } from "../dom";
 import type { Answer } from "./answer";
-import { RESPOND, type ReplyLinks } from "./calendar-reply";
 import type { EventCards } from "./event-card";
 import { MESSAGE } from "./gmail-message";
-import type { Labels } from "./rsvp-labels";
+
+// A Calendar reply link, or a control on one of Gmail's invite cards.
+export const VIA = { link: "link", button: "button" } as const;
+
+export type Via = (typeof VIA)[keyof typeof VIA];
 
 export interface Rsvp {
   answer: Answer;
   // The message holding the invitation.
   message: Element;
-  // A Calendar reply link, or a control on one of Gmail's invite cards.
-  via: "link" | "button";
+  via: Via;
 }
 
 export interface RsvpReader {
   read(target: EventTarget | null): Rsvp | undefined;
+}
+
+// One way a control can answer the invitation in a message.
+export interface RsvpWay {
+  rsvp(control: Element, message: Element): Rsvp | undefined;
 }
 
 // Anything a person can press: a link, a real button, or one of Gmail's
@@ -24,17 +31,11 @@ const CONTROLS = `${LINK}[${HREF}], ${BUTTON}, ${ROLE_BUTTON}`;
 // A toggle on Gmail's event card is its "Correct?" thumbs up or down, labelled
 // Yes and No, asking whether it read the email right. Never an answer.
 const TOGGLE = "[aria-pressed]";
-// Reply links, found cheaply before each is read properly.
-const REPLY_LINKS = `${LINK}[${HREF}*='${RESPOND}']`;
-// An .ics attachment, for invitations from Outlook and other calendars that
-// carry no Calendar links. Gmail's attachment chip has a download_url that
-// starts with the file's type, and an aria-label that names the file.
-const ICS = `[download_url^='text/calendar:'], [${ARIA_LABEL}*='.ics']`;
 
 export class InviteRsvps implements RsvpReader {
+  // The ways are tried in order, and the first that reads an answer wins.
   constructor(
-    private readonly links: ReplyLinks,
-    private readonly labels: Labels,
+    private readonly ways: readonly RsvpWay[],
     private readonly cards: EventCards,
   ) {}
 
@@ -52,19 +53,10 @@ export class InviteRsvps implements RsvpReader {
   }
 
   private reply(control: Element, message: Element): Rsvp | undefined {
-    const href = control.getAttribute(HREF);
-    const linked = href === null ? undefined : this.links.answer(href);
-    if (linked !== undefined) return { answer: linked, message, via: "link" };
-    // A word on a button means nothing outside an invitation.
-    const labelled = this.labels.answer(control);
-    if (labelled === undefined || !this.isInvite(message)) return undefined;
-    return { answer: labelled, message, via: "button" };
-  }
-
-  private isInvite(message: Element): boolean {
-    if (message.querySelector(ICS)) return true;
-    return [...message.querySelectorAll<HTMLAnchorElement>(REPLY_LINKS)].some(
-      (link) => this.links.answer(link.href) !== undefined,
-    );
+    for (const way of this.ways) {
+      const rsvp = way.rsvp(control, message);
+      if (rsvp) return rsvp;
+    }
+    return undefined;
   }
 }

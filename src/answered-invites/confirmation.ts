@@ -2,11 +2,18 @@
 // that fails never costs the email.
 import type { PollSchedule, Timer } from "../timer";
 import type { AnswerState } from "./answer-state";
-import type { Rsvp } from "./rsvp-reader";
+import { VIA, type Rsvp, type Via } from "./rsvp-reader";
 
 export interface Confirmation {
   confirmed(rsvp: Rsvp, click: Event): Promise<boolean>;
 }
+
+// Whether a reply made this way is recorded as soon as Gmail lets the click
+// through. A reply link opens Calendar, which records the reply as it loads.
+const RECORDED_ON_CLICK: Readonly<Record<Via, boolean>> = {
+  [VIA.link]: true,
+  [VIA.button]: false,
+};
 
 export class GmailConfirmation implements Confirmation {
   constructor(
@@ -32,9 +39,7 @@ export class GmailConfirmation implements Confirmation {
     await this.timer.delay(this.schedule.everyMs);
     // Gone from the page: the person moved on, so leave it be.
     if (!rsvp.message.isConnected) return false;
-    // A reply link Gmail let through opened Calendar, which records the
-    // reply as it loads.
-    if (rsvp.via === "link" && !click.defaultPrevented) return true;
+    if (RECORDED_ON_CLICK[rsvp.via] && !click.defaultPrevented) return true;
     const next = this.state.answered(rsvp.message, rsvp.answer)
       ? streak + 1
       : 0;
