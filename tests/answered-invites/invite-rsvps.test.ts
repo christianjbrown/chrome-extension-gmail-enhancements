@@ -2,6 +2,8 @@ import { CalendarReplyLink } from "../../src/answered-invites/calendar-reply";
 import { SmartEventCards } from "../../src/answered-invites/event-card";
 import { CalendarInvite } from "../../src/answered-invites/calendar-invite";
 import { LabelledRsvps } from "../../src/answered-invites/labelled-rsvps";
+import { RecordedLater } from "../../src/answered-invites/recorded-later";
+import { RecordedOnClick } from "../../src/answered-invites/recorded-on-click";
 import { ReplyLinkRsvps } from "../../src/answered-invites/reply-link-rsvps";
 import { RsvpLabels } from "../../src/answered-invites/rsvp-labels";
 import { InviteRsvps } from "../../src/answered-invites/invite-rsvps";
@@ -40,12 +42,15 @@ describe("InviteRsvps", () => {
     new RedirectUnwrapper(webOnly, GOOGLE_REDIRECT),
     webOnly,
   );
+  const byLink = new RecordedOnClick();
+  const byButton = new RecordedLater();
   const reader = new InviteRsvps(
     [
-      new ReplyLinkRsvps(links),
+      new ReplyLinkRsvps(links, byLink),
       new LabelledRsvps(
         new RsvpLabels(ANSWER_WORDS),
         new CalendarInvite(links),
+        byButton,
       ),
     ],
     new SmartEventCards(),
@@ -56,7 +61,7 @@ describe("InviteRsvps", () => {
     expect(reader.read(at(invite, "link-yes"))).toEqual({
       answer: "yes",
       message,
-      via: "link",
+      recording: byLink,
     });
     expect(reader.read(at(invite, "link-no"))?.answer).toBe("no");
   });
@@ -65,7 +70,7 @@ describe("InviteRsvps", () => {
     expect(reader.read(at(invite, "card-yes-text"))).toEqual({
       answer: "yes",
       message,
-      via: "button",
+      recording: byButton,
     });
     expect(reader.read(at(invite, "card-maybe"))?.answer).toBe("maybe");
   });
@@ -93,7 +98,7 @@ describe("InviteRsvps", () => {
       `<div data-message-id="3">${attachment}<button>Yes</button></div>`,
     );
 
-    expect(reader.read(root.querySelector("button"))?.via).toBe("button");
+    expect(reader.read(root.querySelector("button"))?.recording).toBe(byButton);
   });
 
   describe("Gmail's event card above the message", () => {
@@ -113,7 +118,7 @@ describe("InviteRsvps", () => {
       expect(reader.read(at(conversation, "yes-text"))).toEqual({
         answer: "yes",
         message: at(conversation, "message"),
-        via: "button",
+        recording: byButton,
       });
       expect(reader.read(at(conversation, "no"))?.answer).toBe("no");
     });

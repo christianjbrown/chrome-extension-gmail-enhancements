@@ -2,14 +2,7 @@
 import type { Waiter } from "../waiter";
 import type { AnswerState } from "./answer-state";
 import type { Confirmation } from "./confirmation";
-import { VIA, type Rsvp, type Via } from "./rsvp";
-
-// Whether a reply made this way is recorded as soon as Gmail lets the click
-// through. A reply link opens Calendar, which records the reply as it loads.
-const RECORDED_ON_CLICK: Readonly<Record<Via, boolean>> = {
-  [VIA.link]: true,
-  [VIA.button]: false,
-};
+import type { Rsvp } from "./rsvp";
 
 export class GmailConfirmation implements Confirmation {
   constructor(
@@ -25,7 +18,7 @@ export class GmailConfirmation implements Confirmation {
     const outcome = await this.waiter.until(() => {
       // Gone from the page: the person moved on, so leave it be.
       if (!rsvp.message.isConnected) return false;
-      if (RECORDED_ON_CLICK[rsvp.via] && !click.defaultPrevented) return true;
+      if (rsvp.recording.recordedBy(click)) return true;
       streak = this.state.answered(rsvp.message, rsvp.answer) ? streak + 1 : 0;
       return streak === this.settled ? true : undefined;
     });

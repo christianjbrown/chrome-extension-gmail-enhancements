@@ -123,6 +123,7 @@ How it fits together, all in `src`:
   - **`calendar-reply.ts`** reads the answer a Google Calendar `action=RESPOND` link sends, going by **`calendar-link.ts`**.
   - **`rsvp-labels.ts`** reads the answer off a Yes, Maybe or No button.
   - **`gmail-confirmation.ts`** and **`chosen-answer.ts`** wait until Gmail shows the reply as your answer.
+  - **`recorded-on-click.ts`** and **`recorded-later.ts`** say when each way of replying gets the reply recorded. `main.ts` hands one to each way, so a reply link counts as soon as Calendar opens and a card button waits for Gmail to show it.
   - **`invite-binner.ts`** presses Delete, using **`nearest-delete.ts`** to find the right one, **`lone-invite.ts`** to check the invite is all it would bin, and the shared presser to press it.
 
 - **`reported-phishing/`** bins phishing you report:
