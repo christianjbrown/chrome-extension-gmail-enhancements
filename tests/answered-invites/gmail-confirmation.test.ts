@@ -2,10 +2,15 @@ import { GmailConfirmation } from "../../src/answered-invites/gmail-confirmation
 import type { Rsvp } from "../../src/answered-invites/rsvp";
 import type { Waiter } from "../../src/waiter";
 
-function rsvp(via: Rsvp["via"]): Rsvp {
+// A way of replying that says it is recorded, or not, whatever the click.
+function rsvp(recorded: boolean): Rsvp {
   const message = document.createElement("div");
   document.body.append(message);
-  return { answer: "maybe", message, via };
+  return {
+    answer: "maybe",
+    message,
+    recording: { recordedBy: () => recorded },
+  };
 }
 
 function click(prevented: boolean): Event {
@@ -53,7 +58,7 @@ describe("GmailConfirmation", () => {
       true,
     );
 
-    await expect(subject.confirmed(rsvp("button"), click(false))).resolves.toBe(
+    await expect(subject.confirmed(rsvp(false), click(false))).resolves.toBe(
       true,
     );
     expect(answered).toHaveBeenCalledTimes(5);
@@ -63,7 +68,7 @@ describe("GmailConfirmation", () => {
   it("gives up after fifteen seconds when the reply never shows", async () => {
     const { answered, confirmation: subject } = confirmation();
 
-    await expect(subject.confirmed(rsvp("button"), click(false))).resolves.toBe(
+    await expect(subject.confirmed(rsvp(false), click(false))).resolves.toBe(
       false,
     );
     expect(answered).toHaveBeenCalledTimes(30);
@@ -72,28 +77,21 @@ describe("GmailConfirmation", () => {
 
   it("gives up when the message leaves the page", async () => {
     const { answered, confirmation: subject } = confirmation(true, true);
-    const answer = rsvp("button");
+    const answer = rsvp(false);
     answer.message.remove();
 
     await expect(subject.confirmed(answer, click(false))).resolves.toBe(false);
     expect(answered).not.toHaveBeenCalled();
   });
 
-  it("confirms a reply link that opened Calendar", async () => {
+  it("confirms straight away a reply its way says is already recorded", async () => {
     const { answered, confirmation: subject } = confirmation();
+    const answer = rsvp(true);
+    const recordedBy = vi.spyOn(answer.recording, "recordedBy");
+    const made = click(false);
 
-    await expect(subject.confirmed(rsvp("link"), click(false))).resolves.toBe(
-      true,
-    );
+    await expect(subject.confirmed(answer, made)).resolves.toBe(true);
+    expect(recordedBy).toHaveBeenCalledWith(made);
     expect(answered).not.toHaveBeenCalled();
-  });
-
-  it("waits for the card when Gmail handled the reply link itself", async () => {
-    const { answered, confirmation: subject } = confirmation(true, true);
-
-    await expect(subject.confirmed(rsvp("link"), click(true))).resolves.toBe(
-      true,
-    );
-    expect(answered).toHaveBeenCalledTimes(2);
   });
 });

@@ -4,6 +4,7 @@ import type { Rsvp } from "../../src/answered-invites/rsvp";
 
 describe("AnsweredInvites", () => {
   const message = document.createElement("div");
+  const recording = { recordedBy: () => false };
 
   function setup(...answers: (Answer | undefined)[]) {
     const source = document.createElement("div");
@@ -15,7 +16,7 @@ describe("AnsweredInvites", () => {
     );
     const read = vi.fn((_target: EventTarget | null) => {
       const answer = answers.shift();
-      return answer && { answer, message, via: "button" as const };
+      return answer && { answer, message, recording };
     });
     new AnsweredInvites(source, { read }, { confirmed }, { bin }).start();
     const click = () => {
@@ -40,7 +41,7 @@ describe("AnsweredInvites", () => {
       expect(confirmed.mock.calls[0]![0]).toEqual({
         answer,
         message,
-        via: "button",
+        recording,
       });
       await vi.waitFor(() => {
         expect(bin).toHaveBeenCalledExactlyOnceWith(message);

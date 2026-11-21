@@ -13,6 +13,8 @@ import { LoneInvite } from "./answered-invites/lone-invite";
 import { NearestDelete } from "./answered-invites/nearest-delete";
 import { ReplyLinkRsvps } from "./answered-invites/reply-link-rsvps";
 import { RsvpLabels } from "./answered-invites/rsvp-labels";
+import { RecordedLater } from "./answered-invites/recorded-later";
+import { RecordedOnClick } from "./answered-invites/recorded-on-click";
 import { CONTENT_CONFIG } from "./config";
 import { ClickGuard } from "./direct-links/click-guard";
 import { DirectLinks } from "./direct-links/direct-links";
@@ -77,8 +79,12 @@ function answeredInvites(): Enhancement {
     window,
     new InviteRsvps(
       [
-        new ReplyLinkRsvps(links),
-        new LabelledRsvps(labels, new CalendarInvite(links)),
+        new ReplyLinkRsvps(links, new RecordedOnClick()),
+        new LabelledRsvps(
+          labels,
+          new CalendarInvite(links),
+          new RecordedLater(),
+        ),
       ],
       cards,
     ),
