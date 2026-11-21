@@ -1,14 +1,13 @@
 // Report an email as phishing and it goes to Bin as well. Gmail only moves it
 // to Spam, or leaves it there, for another 30 days, when the point of
 // reporting was to be rid of it.
-import { MESSAGE_ID } from "../gmail-message";
 import { BUTTON, MOUSE_EVENTS, ROLE_BUTTON, ROLE_MENU_ITEM } from "../dom";
 import type { Enhancement } from "../enhancement";
 import { BEFORE_GMAIL, type EventSource } from "../event-source";
 import type { Cleanup, Report } from "./report";
 import type { ReportControls } from "./report-controls";
 import { DIALOG_CHOICE, type DialogChoice } from "./report-dialog";
-import type { ConversationNavigation } from "./router";
+import type { ReportRule } from "./report-rule";
 
 // Anything a person can press.
 const CONTROLS = `${ROLE_MENU_ITEM}, ${BUTTON}, ${ROLE_BUTTON}`;
@@ -19,7 +18,7 @@ export class ReportedPhishing implements Enhancement {
 
   constructor(
     private readonly source: EventSource,
-    private readonly navigation: ConversationNavigation,
+    private readonly rule: ReportRule,
     private readonly controls: ReportControls,
     private readonly cleanup: Cleanup,
   ) {}
@@ -47,16 +46,7 @@ export class ReportedPhishing implements Enhancement {
     const [message] = this.controls.places.flatMap(
       (place) => place.reported(control) ?? [],
     );
-    if (message) this.pending = this.report(message);
-  }
-
-  // Only a report made from an open conversation counts.
-  private report(message: Element): Report | undefined {
-    const route = this.navigation.router.current();
-    const messageId = message.getAttribute(MESSAGE_ID);
-    if (!messageId || !this.navigation.routes.conversation(route))
-      return undefined;
-    return { route, messageId };
+    if (message) this.pending = this.rule.report(message);
   }
 
   private answered(choice: DialogChoice): void {

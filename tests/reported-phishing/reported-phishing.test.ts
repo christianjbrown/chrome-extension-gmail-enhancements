@@ -3,6 +3,7 @@ import { GmailMessageMenu } from "../../src/reported-phishing/message-menu";
 import { GmailReportDialog } from "../../src/reported-phishing/gmail-report-dialog";
 import { ReportedPhishing } from "../../src/reported-phishing/reported-phishing";
 import { GmailRoutes } from "../../src/reported-phishing/gmail-routes";
+import { ConversationReports } from "../../src/reported-phishing/conversation-reports";
 import { WarningBox } from "../../src/reported-phishing/warning-box";
 
 function controls() {
@@ -36,7 +37,7 @@ describe("ReportedPhishing", () => {
     const router = { current: vi.fn(() => route) };
     new ReportedPhishing(
       document,
-      { router, routes: new GmailRoutes(16) },
+      new ConversationReports({ router, routes: new GmailRoutes(16) }),
       controls(),
       { afterReport },
     ).start();
@@ -120,10 +121,7 @@ describe("ReportedPhishing", () => {
     const listeners: ((event: Event) => void)[] = [];
     new ReportedPhishing(
       { addEventListener: (_type, listener) => listeners.push(listener) },
-      {
-        router: { current: vi.fn() },
-        routes: new GmailRoutes(16),
-      },
+      { report: vi.fn() },
       controls(),
       { afterReport },
     ).start();
@@ -138,10 +136,7 @@ describe("ReportedPhishing", () => {
 
     new ReportedPhishing(
       { addEventListener },
-      {
-        router: { current: vi.fn() },
-        routes: new GmailRoutes(16),
-      },
+      { report: vi.fn() },
       controls(),
       { afterReport: vi.fn() },
     ).start();

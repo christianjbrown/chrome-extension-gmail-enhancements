@@ -30,6 +30,7 @@ import type { Enhancement } from "./enhancement";
 import { ANSWER_WORDS } from "./gmail-labels";
 import { MousePresser } from "./mouse-presser";
 import { Poller } from "./poller";
+import { ConversationReports } from "./reported-phishing/conversation-reports";
 import { GmailReportDialog } from "./reported-phishing/gmail-report-dialog";
 import { GmailRoutes } from "./reported-phishing/gmail-routes";
 import { HashRouter } from "./reported-phishing/hash-router";
@@ -110,7 +111,7 @@ function reportedPhishing(): Enhancement {
   };
   return new ReportedPhishing(
     window,
-    navigation,
+    new ConversationReports(navigation),
     {
       places: [new MenuReports(menu, menu), new WarningBox()],
       dialog: new GmailReportDialog(),
