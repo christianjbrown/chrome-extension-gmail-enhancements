@@ -1,4 +1,4 @@
-import { Poller } from "../../src/reported-phishing/poller";
+import { Poller } from "../src/poller";
 
 describe("Poller", () => {
   const timer = { delay: vi.fn(() => Promise.resolve()) };

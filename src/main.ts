@@ -27,13 +27,13 @@ import { ElementVisibility } from "./element-visibility";
 import type { Enhancement } from "./enhancement";
 import { ANSWER_WORDS } from "./gmail-labels";
 import { MousePresser } from "./mouse-presser";
+import { Poller } from "./poller";
 import { GmailReportDialog } from "./reported-phishing/gmail-report-dialog";
 import { GmailRoutes } from "./reported-phishing/gmail-routes";
 import { HashRouter } from "./reported-phishing/hash-router";
 import { MenuReports } from "./reported-phishing/menu-reports";
 import { GmailMessageMenu } from "./reported-phishing/message-menu";
 import { VisibleMessages } from "./reported-phishing/messages";
-import { Poller } from "./reported-phishing/poller";
 import { ReportedBinner } from "./reported-phishing/reported-binner";
 import { ReportedPhishing } from "./reported-phishing/reported-phishing";
 import { WarningBox } from "./reported-phishing/warning-box";
@@ -83,9 +83,8 @@ function answeredInvites(): Enhancement {
       cards,
     ),
     new GmailConfirmation(
-      timer,
+      new Poller(timer, CONTENT_CONFIG.inviteChecks),
       new ChosenAnswer(labels, cards),
-      CONTENT_CONFIG.inviteChecks,
       CONTENT_CONFIG.inviteSettledChecks,
     ),
     new ConversationBinner(

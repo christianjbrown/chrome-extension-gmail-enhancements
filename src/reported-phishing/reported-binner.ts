@@ -12,7 +12,7 @@ import { DELETE, REPORTED } from "../gmail-labels";
 import type { Conversation } from "./conversation";
 import type { Cleanup, Report } from "./report";
 import type { SpamNavigation } from "./router";
-import type { Waiter } from "./waiter";
+import type { Waiter } from "../waiter";
 
 export class ReportedBinner implements Cleanup {
   constructor(
